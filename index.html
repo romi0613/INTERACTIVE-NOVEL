@@ -338,6 +338,7 @@
       pointer-events:auto;
     }
 
+    /* ✅ 여기에서만 스크롤 + 스크롤바 커스텀 */
     .preview-sheet{
       position:fixed;
       inset:0;
@@ -357,12 +358,33 @@
       z-index:61;
       display:flex;
       flex-direction:column;
+
       overflow-y:auto;
+
+      /* Firefox */
+      scrollbar-width:thin;
+      scrollbar-color:#f1cf88 #0b090c;
     }
     .preview-sheet.open{
       opacity:1;
       transform:translateY(0);
       pointer-events:auto;
+    }
+    /* Chrome / Edge / Safari */
+    .preview-sheet::-webkit-scrollbar{
+      width:8px;
+    }
+    .preview-sheet::-webkit-scrollbar-track{
+      background:#0b090c;
+      border-radius:10px;
+    }
+    .preview-sheet::-webkit-scrollbar-thumb{
+      background:linear-gradient(180deg,#f6e0b5,#f1cf88);
+      border-radius:10px;
+      box-shadow:0 0 10px rgba(255,222,160,.45);
+    }
+    .preview-sheet::-webkit-scrollbar-thumb:hover{
+      background:linear-gradient(180deg,#ffedc5,#f4c66f);
     }
 
     .preview-wrap{
@@ -404,7 +426,8 @@
     .pv-content{
       flex:1 1 auto;
       padding:16px 20px 18px;
-      overflow-y:auto;
+      /* ✅ 실제 스크롤은 preview-sheet에서만 */
+      overflow:visible;
       -webkit-overflow-scrolling:touch;
       font-size:14px;
     }
@@ -652,162 +675,219 @@
       line-height:1.7;
       font-size:13px;
     }
-/* 예고편 영상: 패널 양 끝까지 꽉 차게 */
-.video-wrap{
-  position:relative;
 
-  /* pv-content의 좌우 padding(20px)을 무시하고 꽉 차게 */
-  width:calc(100% + 40px);
-  margin:10px -20px 0;   /* left/right -20px */
+    /* 예고편 영상: 패널 양 끝까지 꽉 차게 */
+    .video-wrap{
+      position:relative;
+      width:calc(100% + 40px);
+      margin:10px -20px 0;
+      aspect-ratio:16/9;
+      max-width:none;
+      border-radius:0 0 10px 10px;
+      border-top:1px solid #ffffff22;
+      border-bottom:1px solid #ffffff22;
+      overflow:hidden;
+      box-shadow:0 16px 40px #000c;
+      background:#000;
+    }
+    .video-wrap video{
+      width:100%;
+      height:100%;
+      display:block;
+      background:#000;
+    }
 
-  aspect-ratio:16/9;
-  max-width:none;
+    /* ===== 예고편 이후: 시작 안내 섹션 ===== */
+    .pv-next{
+      margin-top:24px;
+      padding:16px 18px 18px;
+      border-radius:10px;
+      border:1px solid #ffffff22;
+      background:linear-gradient(135deg, #171717, #111015);
+      box-shadow:0 14px 40px #000a;
+      display:grid;
+      grid-template-columns:minmax(0,2.2fr) minmax(220px,1.4fr);
+      gap:18px;
+      font-size:13px;
+    }
+    .pv-next-left h4{
+      margin:0 0 6px;
+      font-size:15px;
+      font-weight:600;
+    }
+    .pv-next-left p{
+      margin:0 0 10px;
+      color:#d8d0c1;
+      line-height:1.6;
+    }
+    .pv-meta-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .pv-meta-chip{
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid #ffffff2a;
+      background:#1b1b1b;
+      color:#e9e0d0;
+      font-size:11px;
+    }
+    .pv-next-right-title{
+      margin:0 0 6px;
+      font-size:13px;
+      font-weight:600;
+      color:#f0e6d8;
+    }
+    .pv-checklist{
+      margin:0 0 10px;
+      padding-left:18px;
+      color:#d1c9bc;
+      line-height:1.6;
+    }
+    .pv-next-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .pv-next-actions button{
+      border:none;
+      border-radius:999px;
+      padding:8px 14px;
+      font-size:13px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .pv-next-primary{
+      background:linear-gradient(90deg,#f6e0b5,#f1cf88);
+      color:#171310;
+      box-shadow:0 0 0 1px #000 inset, 0 0 20px rgba(255,222,160,.35);
+    }
+    .pv-next-secondary{
+      background:rgba(26,26,26,.9);
+      color:#e5ddcf;
+      border:1px solid #ffffff33;
+    }
 
-  border-radius:0 0 10px 10px;          /* 위쪽은 텍스트, 아래쪽만 둥글게 */
-  border-top:1px solid #ffffff22;
-  border-bottom:1px solid #ffffff22;
+    /* ===== 추가 유튜브 클립 섹션 ===== */
+    .pv-extra{
+      margin-top:32px;
+      padding:20px 0 4px;
+      border-top:1px solid #ffffff18;
+    }
 
-  overflow:hidden;
-  box-shadow:0 16px 40px #000c;
-  background:#000;
-}
+    .pv-extra-header{
+      text-align:center;
+      margin-bottom:18px;
+    }
 
-.video-wrap video{
-  width:100%;
-  height:100%;
-  display:block;
-  background:#000;
-}
+    .pv-extra-eyebrow{
+      font-size:11px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:#a79f90;
+    }
 
-  
-/* ===== 추가 유튜브 클립 섹션 ===== */
-.pv-extra{
-  margin-top:32px;
-  padding:20px 0 4px;
-  border-top:1px solid #ffffff18;
-}
+    .pv-extra-title{
+      margin:4px 0 4px;
+      font-size:15px;
+      font-weight:600;
+    }
 
-.pv-extra-header{
-  text-align:center;
-  margin-bottom:18px;
-}
+    .pv-extra-sub{
+      margin:0;
+      font-size:12px;
+      color:#cfc7ba;
+    }
 
-.pv-extra-eyebrow{
-  font-size:11px;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-  color:#a79f90;
-}
+    .pv-extra-grid{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:14px;
+    }
 
-.pv-extra-title{
-  margin:4px 0 4px;
-  font-size:15px;
-  font-weight:600;
-}
+    .pv-extra-card{
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      background:#111;
+      border-radius:10px;
+      border:1px solid #ffffff15;
+      overflow:hidden;
+      text-decoration:none;
+      color:inherit;
+      cursor:pointer;
+      transition:
+        transform .16s ease,
+        box-shadow .16s ease,
+        border-color .16s ease,
+        background .16s ease;
+    }
+    .pv-extra-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 14px 38px #000c;
+      border-color:#ffffff33;
+      background:#141414;
+    }
 
-.pv-extra-sub{
-  margin:0;
-  font-size:12px;
-  color:#cfc7ba;
-}
+    .pv-extra-thumb{
+      position:relative;
+      aspect-ratio:16/9;
+      background:#000 center/cover no-repeat;
+    }
+    .pv-extra-thumb::after{
+      content:"";
+      position:absolute;
+      left:50%; top:50%;
+      width:46px; height:46px;
+      border-radius:50%;
+      border:1px solid #ffffffaa;
+      box-shadow:0 0 18px #000a;
+      background:radial-gradient(circle at 30% 30%, #ffffff, #f3d49a);
+      transform:translate(-50%,-50%);
+      mask:
+        radial-gradient(circle 22px at center, transparent 21px, #000 21px) subtract,
+        linear-gradient(90deg, transparent 44%, #000 44%);
+    }
 
-/* 카드 그리드 */
-.pv-extra-grid{
-  display:grid;
-  grid-template-columns:repeat(3, minmax(0,1fr));
-  gap:14px;
-}
+    .pv-extra-body{
+      padding:9px 10px 10px;
+    }
+    .pv-extra-card-title{
+      margin:0 0 2px;
+      font-size:13px;
+      font-weight:600;
+    }
+    .pv-extra-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      font-size:11px;
+      color:#a99f90;
+    }
+    .pv-extra-pill{
+      padding:2px 6px;
+      border-radius:999px;
+      border:1px solid #ffffff22;
+      background:#181818;
+    }
+    .pv-extra-note{
+      margin-top:10px;
+      font-size:11px;
+      color:#9f9687;
+      text-align:right;
+    }
 
-/* 유튜브 카드 */
-.pv-extra-card{
-  position:relative;
-  display:flex;
-  flex-direction:column;
-  background:#111;
-  border-radius:10px;
-  border:1px solid #ffffff15;
-  overflow:hidden;
-  text-decoration:none;
-  color:inherit;
-  cursor:pointer;
-  transition:
-    transform .16s ease,
-    box-shadow .16s ease,
-    border-color .16s ease,
-    background .16s ease;
-}
+    /* 모바일에서 한 줄로 */
+    @media (max-width:900px){
+      .pv-extra-grid{
+        grid-template-columns:1fr;
+      }
+    }
 
-.pv-extra-card:hover{
-  transform:translateY(-2px);
-  box-shadow:0 14px 38px #000c;
-  border-color:#ffffff33;
-  background:#141414;
-}
-
-/* 썸네일 */
-.pv-extra-thumb{
-  position:relative;
-  aspect-ratio:16/9;
-  background:#000 center/cover no-repeat;
-}
-
-/* 재생 아이콘 */
-.pv-extra-thumb::after{
-  content:"";
-  position:absolute;
-  left:50%; top:50%;
-  width:46px; height:46px;
-  border-radius:50%;
-  border:1px solid #ffffffaa;
-  box-shadow:0 0 18px #000a;
-  background:radial-gradient(circle at 30% 30%, #ffffff, #f3d49a);
-  transform:translate(-50%,-50%);
-  mask:
-    radial-gradient(circle 22px at center, transparent 21px, #000 21px) subtract,
-    linear-gradient(90deg, transparent 44%, #000 44%);
-}
-
-.pv-extra-body{
-  padding:9px 10px 10px;
-}
-
-.pv-extra-card-title{
-  margin:0 0 2px;
-  font-size:13px;
-  font-weight:600;
-}
-
-.pv-extra-meta{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  font-size:11px;
-  color:#a99f90;
-}
-
-.pv-extra-pill{
-  padding:2px 6px;
-  border-radius:999px;
-  border:1px solid #ffffff22;
-  background:#181818;
-}
-
-/* 유튜브 새 탭 안내 */
-.pv-extra-note{
-  margin-top:10px;
-  font-size:11px;
-  color:#9f9687;
-  text-align:right;
-}
-
-/* 모바일에서 한 줄로 */
-@media (max-width:900px){
-  .pv-extra-grid{
-    grid-template-columns:1fr;
-  }
-}
-
-    /* ===== 모바일 ===== */
+    /* ===== 모바일 전체 ===== */
     @media (max-width:900px){
       header.title{
         left:50%; top:10vh;
@@ -853,6 +933,10 @@
       .pv-divider::after{
         width:22%;
       }
+      .pv-next{
+        grid-template-columns:1fr;
+        gap:12px;
+      }
     }
 
     @media (prefers-reduced-motion: reduce){
@@ -860,98 +944,6 @@
         animation:none !important;
       }
     }
-
-    /* 예고편 이후: 시작 안내 섹션 */
-.pv-next {
-  margin-top:24px;
-  padding:16px 18px 18px;
-  border-radius:10px;
-  border:1px solid #ffffff22;
-  background:linear-gradient(135deg, #171717, #111015);
-  box-shadow:0 14px 40px #000a;
-  display:grid;
-  grid-template-columns:minmax(0,2.2fr) minmax(220px,1.4fr);
-  gap:18px;
-  font-size:13px;
-}
-
-.pv-next-left h4{
-  margin:0 0 6px;
-  font-size:15px;
-  font-weight:600;
-}
-
-.pv-next-left p{
-  margin:0 0 10px;
-  color:#d8d0c1;
-  line-height:1.6;
-}
-
-.pv-meta-row{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-
-.pv-meta-chip{
-  padding:4px 8px;
-  border-radius:999px;
-  border:1px solid #ffffff2a;
-  background:#1b1b1b;
-  color:#e9e0d0;
-  font-size:11px;
-}
-
-.pv-next-right-title{
-  margin:0 0 6px;
-  font-size:13px;
-  font-weight:600;
-  color:#f0e6d8;
-}
-
-.pv-checklist{
-  margin:0 0 10px;
-  padding-left:18px;
-  color:#d1c9bc;
-  line-height:1.6;
-}
-
-.pv-next-actions{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-}
-
-.pv-next-actions button{
-  border:none;
-  border-radius:999px;
-  padding:8px 14px;
-  font-size:13px;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:6px;
-}
-
-.pv-next-primary{
-  background:linear-gradient(90deg,#f6e0b5,#f1cf88);
-  color:#171310;
-  box-shadow:0 0 0 1px #000 inset, 0 0 20px rgba(255,222,160,.35);
-}
-
-.pv-next-secondary{
-  background:rgba(26,26,26,.9);
-  color:#e5ddcf;
-  border:1px solid #ffffff33;
-}
-
-/* 모바일에서 한 줄로 */
-@media (max-width:900px){
-  .pv-next{
-    grid-template-columns:1fr;
-    gap:12px;
-  }
-}
 
   </style>
 </head>
@@ -1095,10 +1087,6 @@
 
         <!-- 구분선 -->
         <div class="pv-divider"><span>TRAILER PREVIEW</span></div>
-                <section class="pv-bottom">
-          ...
-        </section>
-
 
         <!-- 아래쪽: 설명 텍스트 + 영상 -->
         <section class="pv-bottom">
@@ -1115,7 +1103,8 @@
             </div>
           </div>
         </section>
-                <!-- 예고편 이후: 시작 안내 섹션 -->
+
+        <!-- 예고편 이후: 시작 안내 섹션 -->
         <section class="pv-next">
           <div class="pv-next-left">
             <h4>이제, 당신의 첫 선택만 남았어요</h4>
@@ -1146,11 +1135,9 @@
               <button type="button" class="pv-next-secondary" id="pvReplayDemo">
                 ↻ 선택 튜토리얼 다시 보기
               </button>
-
             </div>
           </div>
-
-                  </section> <!-- pv-bottom 끝 -->
+        </section>
 
         <!-- 추가 유튜브 클립 섹션 -->
         <section class="pv-extra">
@@ -1215,8 +1202,6 @@
           <p class="pv-extra-note">
             * 모든 링크는 YouTube 새 탭에서 재생됩니다.
           </p>
-        </section>
-
         </section>
 
       </div>
@@ -1367,7 +1352,6 @@
       pvBar.style.transform='scaleX(0)';
       pvHelp.textContent = `${reason} [${choiceText}] 가 선택되었습니다. 실제 플레이에선 곧바로 다음 장면으로 넘어가요.`;
       stopDemo();
-      // 2.3초 후 다시 연습 가능
       setTimeout(()=>{
         if(pvSheet.classList.contains('open')){
           resetDemo();
@@ -1422,26 +1406,24 @@
       });
     });
 
-        // 예고편 이후 CTA 버튼들
+    // 예고편 이후 CTA 버튼들
     const pvStartFromPreview = document.getElementById('pvStartFromPreview');
     const pvReplayDemo      = document.getElementById('pvReplayDemo');
 
     if(pvStartFromPreview){
       pvStartFromPreview.addEventListener('click', ()=>{
         closePreview();
-        showLoader();        // 메인 화면의 시작하기랑 같은 흐름
+        showLoader();
       });
     }
     if(pvReplayDemo){
       pvReplayDemo.addEventListener('click', ()=>{
-        // 모달 안에서 다시 선택 연습만 리셋
         if(pvSheet.classList.contains('open')){
           resetDemo();
-          pvSheet.scrollTop = 0;   // 맨 위로 스크롤 올려주기
+          pvSheet.scrollTop = 0;
         }
       });
     }
-
   </script>
 </body>
 </html>
