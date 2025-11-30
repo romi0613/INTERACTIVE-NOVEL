@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>옵션 — 감각·몰입 설정 (Immersion Settings)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css"/>
+
+<style>
+  :root{
+    --bg:#0b0b0b; --ink:#e9e6df; --muted:#b8b1a2; --accent:#e6d9b6;
+    --stroke:#ffffff22; --glow:#ffe9b466;
+    /* 실시간 제어 변수 */
+    --blur: 2px;
+    --grain: 0.15;
+    --sat: 0.98;
+    --bright: 0.96;
+    --contrast: 1.02;
+    --vignette: 0.35;  /* 0~0.8 */
+    --shake: 0;        /* 0/1 */
+    --crt: 0;          /* 0~1 */
+    --pulse: 0;        /* 감정 피드백 0/1 */
+    --hue: 0deg;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Pretendard Variable',Pretendard,system-ui,Apple SD Gothic Neo,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    overflow:hidden;
+  }
+
+  /* ====== 상단 바 (데모용) ====== */
+  .topbar{
+    position:fixed; inset:0 0 auto 0; height:54px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 16px; background:linear-gradient(to bottom,#0b0b0bcc,#0b0b0b80);
+    border-bottom:1px solid var(--stroke); z-index:50;
+  }
+  .topbar h1{font-size:16px; margin:0; color:var(--accent); letter-spacing:.02em}
+  .topbar .btn{
+    background:none; color:var(--accent); border:1px solid var(--accent);
+    padding:6px 10px; border-radius:8px; cursor:pointer; font-size:13px;
+  }
+  .topbar .btn:hover{background:var(--accent); color:#000}
+
+  /* ====== 옵션 오버레이 ====== */
+  .immersion{
+    position:fixed; inset:0; display:none; place-items:center; z-index:100;
+    background: #000000d0;
+  }
+  .immersion[open]{display:grid;}
+
+  /* 시퀀스: 기억 복원 프롤로그 */
+  .intro{
+    position:absolute; inset:0; display:grid; place-items:center; z-index:110;
+    background:#000000f0; color:#ddd; text-align:center; padding:24px;
+    animation: fadeIn .6s ease both;
+  }
+  .intro.hide{animation: fadeOut .5s ease both; pointer-events:none}
+  .intro p{opacity:.9; margin:.35rem 0 .25rem}
+  .spinner{
+    margin-top:8px; width:28px; height:28px; border-radius:50%;
+    border:2px solid #fff2; border-top-color:#fff8;
+    animation: spin 1.2s linear infinite;
+  }
+
+  /* 본 패널 */
+  .sheet{
+    width:min(1000px,94vw); max-height:86vh;
+    display:grid; grid-template-columns: 1fr 420px; gap:18px;
+    background:#121212; border:1px solid var(--stroke); border-radius:14px;
+    padding:16px; box-shadow:0 30px 80px #000;
+    opacity:0; transform: translateY(10px) scale(.98);
+    animation: pop .35s .3s ease both;
+  }
+  .left{
+    position:relative; border:1px solid var(--stroke); border-radius:12px; overflow:hidden;
+    background:#0e0e0e;
+  }
+  .preview{
+    position:absolute; inset:0;
+    background-image: url('인물.jpg');
+    background-size:cover; background-position:center;
+    filter:
+      blur(var(--blur))
+      saturate(var(--sat))
+      brightness(var(--bright))
+      contrast(var(--contrast));
+    transform: translate3d(0,0,0);
+  }
+  /* 비네팅 */
+  .vignette::before{
+    content:""; position:absolute; inset:0;
+    background:
+      radial-gradient(120% 90% at 50% 100%, rgba(0,0,0,calc(var(--vignette)*.2)) 0%,
+                                        rgba(0,0,0,calc(var(--vignette)*.55)) 60%,
+                                        rgba(0,0,0,calc(var(--vignette)*.9)) 95%);
+    pointer-events:none;
+  }
+  /* 그레인/CRT */
+  .grain, .crt{
+    position:absolute; inset:0; pointer-events:none; mix-blend-mode:overlay;
+  }
+  .grain{ opacity: calc(var(--grain) + 0.05); background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" viewBox="0 0 100 100"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.65"/></svg>'); background-size: 200px 200px; animation: grain 1.6s steps(6,end) infinite; }
+  .crt{
+    opacity: calc(var(--crt));
+    background: repeating-linear-gradient( to bottom, rgba(255,255,255,.06), rgba(255,255,255,.06) 1px, transparent 2px );
+  }
+
+  /* 흔들림(현실 붕괴) */
+  .shake{ animation: shake 0.45s linear infinite; transform-origin:center; }
+  .tint{ position:absolute; inset:0; background: hsla(48, 40%, 60%, 0); mix-blend-mode:color; pointer-events:none; }
+
+  /* 우측 컨트롤 */
+  .right{ display:flex; flex-direction:column; gap:14px; }
+  .panel{
+    background:#151515; border:1px solid var(--stroke); border-radius:12px; padding:14px 14px 12px;
+  }
+  .panel h2{ margin:0 0 8px; font-size:16px; color:var(--accent) }
+  .panel p{ margin:4px 0 10px; color:var(--muted); font-size:13px; line-height:1.6 }
+  .row{ display:flex; align-items:center; gap:12px; }
+  .row label{ width:150px; font-size:13px; color:#dcd6c6; }
+  .row input[type="range"]{ flex:1 }
+  .toggle{
+    display:inline-flex; align-items:center; gap:8px;
+    background:#0f0f0f; border:1px solid var(--stroke); padding:6px 10px; border-radius:999px; cursor:pointer;
+  }
+  .toggle input{ appearance:none; width:38px; height:22px; border-radius:999px; background:#444; position:relative; outline:none; cursor:pointer; }
+  .toggle input::after{
+    content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#ccc; transition:left .2s ease;
+  }
+  .toggle input:checked{ background:#e6d9b6 }
+  .toggle input:checked::after{ left:18px; background:#222 }
+
+  .actions{ display:flex; gap:10px; justify-content:flex-end; }
+  .btn{
+    background:none; color:#ddd; border:1px solid #ffffff2a;
+    padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:600;
+  }
+  .btn:hover{ background:#222 }
+  .btn.primary{ background:var(--accent); color:#000; border-color:var(--accent) }
+  .btn.primary:hover{ filter: brightness(0.95) }
+
+  .helper{ font-size:12px; color:#cbbfa6; margin-top:4px; }
+
+  /* 감정 피드백: 심박 파형/링 */
+  .pulse{
+    position:absolute; left:16px; bottom:16px; width:120px; height:44px;
+    display:none; align-items:center; gap:10px; z-index:5;
+  }
+  .pulse.on{ display:flex; }
+  .beat{
+    width:14px; height:14px; border-radius:50%; background:#ff6666aa;
+    animation: beat 1.2s ease-in-out infinite;
+  }
+  .wave{
+    flex:1; height:14px; background:
+      linear-gradient(to right, #ff9999 10%, #ff6666 60%, #ff9999 100%);
+    mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox=\"0 0 100 20\"><path d=\"M0,10 L20,10 30,1 40,19 50,10 60,10 70,2 80,18 90,10 100,10\" stroke=\"black\" stroke-width=\"3\" fill=\"none\"/></svg>') center/100% 100% no-repeat;
+    opacity:.9;
+  }
+
+  /* 안내 토스트 */
+  .toast{
+    position:fixed; left:50%; bottom:26px; transform:translateX(-50%);
+    background:#000000bf; color:#e9e6df; border:1px solid #ffffff2a;
+    padding:10px 14px; border-radius:10px; font-size:13px; opacity:0; pointer-events:none;
+  }
+  .toast.show{ animation: fadeIn .25s ease both, fadeOut .4s 2.4s ease forwards; }
+
+  /* 접근성/애니메이션 */
+  @media (prefers-reduced-motion: reduce){
+    .shake, .grain, .spinner, .beat{ animation: none !important; }
+  }
+  @keyframes pop{ from{opacity:0; transform:translateY(10px) scale(.98)} to{opacity:1; transform:none} }
+  @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+  @keyframes fadeOut{ from{opacity:1} to{opacity:0} }
+  @keyframes spin{ to{ transform: rotate(360deg) } }
+  @keyframes grain{ 0%{transform:translate(0,0)} 25%{transform:translate(-2%,1%)} 50%{transform:translate(1%,-1%)} 75%{transform:translate(2%,2%)} 100%{transform:translate(0,0)} }
+  @keyframes shake{
+    0%,100%{ transform: translate(0,0) }
+    20%{ transform: translate(1px,-1px) }
+    40%{ transform: translate(-1px,2px) }
+    60%{ transform: translate(2px,1px) }
+    80%{ transform: translate(-2px,-1px) }
+  }
+  @keyframes beat{
+    0%,100%{ transform: scale(0.9); opacity:.8 }
+    40%{ transform: scale(1.15); opacity:1 }
+  }
+</style>
+</head>
+<body>
+
+  <!-- 데모 상단 바 -->
+  <div class="topbar">
+    <h1>인터랙티브 웹소설 — 옵션 데모</h1>
+    <div>
+      <button class="btn" onclick="openImmersionOptions()">옵션 열기</button>
+      <button class="btn" onclick="location.href='index.html'">← 시작화면</button>
+    </div>
+  </div>
+
+  <!-- 배경 (데모용) -->
+  <div style="position:fixed; inset:54px 0 0 0; background:#090909 url('옵션.jpg') center/cover no-repeat;"></div>
+
+  <!-- 옵션 오버레이 -->
+  <section class="immersion" id="immersion" aria-labelledby="immersionTitle" role="dialog" aria-modal="true">
+
+    <!-- 0) 진입 인트로 -->
+    <div class="intro" id="intro">
+      <div>
+        <p style="font-size:18px; color:#d8cfb6">몰입 시스템을 가동합니다…</p>
+        <p style="font-size:14px; color:#c6bfae">의식이 흔들릴 수 있습니다. 준비되셨나요?</p>
+        <div class="spinner" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <!-- 본 패널 -->
+    <div class="sheet" id="sheet">
+      <!-- 라이브 프리뷰 -->
+      <div class="left">
+        <div class="preview vignette" id="preview"></div>
+        <div class="grain"></div>
+        <div class="crt"></div>
+        <div class="tint" id="tint"></div>
+
+        <!-- 감정 피드백 -->
+        <div class="pulse" id="pulseHUD" aria-hidden="true">
+          <div class="beat"></div>
+          <div class="wave"></div>
+        </div>
+      </div>
+
+      <!-- 컨트롤 -->
+      <div class="right">
+        <div class="panel">
+          <h2 id="immersionTitle">🎧 몰입 레벨</h2>
+          <p class="helper" id="levelHelper">1: 노멀 — 현실과의 경계 유지 중.</p>
+          <div class="row" style="margin-top:10px">
+            <label for="level">레벨</label>
+            <input id="level" type="range" min="1" max="3" step="1" value="1" oninput="setLevel(this.value)"/>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>🌒 화면 왜곡 강도</h2>
+          <p class="helper">기억 복원 시 시각 노이즈를 조절합니다.</p>
+          <div class="row">
+            <label for="distortion">왜곡(0~100)</label>
+            <input id="distortion" type="range" min="0" max="100" value="35" oninput="setDistortion(this.value)"/>
+          </div>
+          <p class="helper" id="distoHelper">권장: 35 — 때로 진실은 고통스럽습니다.</p>
+        </div>
+
+        <div class="panel">
+          <h2>💓 감정 피드백</h2>
+          <p class="helper">감정선에 따라 화면/사운드를 동기화합니다.</p>
+          <label class="toggle">
+            <input id="emotion" type="checkbox" onchange="toggleEmotion(this.checked)"/>
+            <span>활성화</span>
+          </label>
+        </div>
+
+        <div class="panel">
+          <h2>적용</h2>
+          <p class="helper">“몰입 레벨 3”에서는 일부 장면이 불안정하게 보일 수 있습니다.</p>
+          <div class="actions">
+            <button class="btn" onclick="closeImmersionOptions(false)">취소</button>
+            <button class="btn primary" onclick="closeImmersionOptions(true)">설정 적용</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 토스트 -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  // ===== 상태 =====
+  const state = {
+    level: 1,
+    distortion: 35,
+    emotion: false
+  };
+
+  // ===== 엘리먼트 =====
+  const $imm = document.getElementById('immersion');
+  const $intro = document.getElementById('intro');
+  const $sheet = document.getElementById('sheet');
+  const $preview = document.getElementById('preview');
+  const $tint = document.getElementById('tint');
+  const $pulse = document.getElementById('pulseHUD');
+  const $toast = document.getElementById('toast');
+  const $levelHelper = document.getElementById('levelHelper');
+  const $distoHelper = document.getElementById('distoHelper');
+
+  // ===== 진입/종료 =====
+  function openImmersionOptions(){
+    $imm.setAttribute('open','');
+    document.body.style.overflow = 'hidden';
+    // 인트로 1.8초 후 자동 해제
+    setTimeout(()=> $intro.classList.add('hide'), 1800);
+  }
+  function closeImmersionOptions(apply){
+    $imm.removeAttribute('open');
+    document.body.style.overflow = '';
+    showToast(apply ? '설정이 적용되었습니다.' : '변경 없이 닫았습니다.');
+  }
+
+  // ===== 토스트 =====
+  function showToast(msg){
+    $toast.textContent = msg;
+    $toast.classList.remove('show');
+    void $toast.offsetWidth; // reflow
+    $toast.classList.add('show');
+  }
+
+  // ===== 컨트롤 로직 =====
+  function setLevel(v){
+    state.level = parseInt(v,10);
+
+    // 🔹 레벨 변경 시, 기본적으로 흔들림/효과 초기화
+    toggleShake(false);
+    document.documentElement.style.setProperty('--crt', 0);
+    document.documentElement.style.setProperty('--shake', 0);
+    document.documentElement.style.setProperty('--hue', '0deg');
+
+    if(state.level === 1){
+      // 노멀
+      setFilter({ blur: 1, grain:.10, sat:.98, bright:.98, contrast:1.02, vignette:.28 });
+      $levelHelper.textContent = '1: 노멀 — 현실과의 경계 유지 중.';
+    } else if(state.level === 2){
+      // 꿈속
+      setFilter({ blur: 3, grain:.18, sat:1.06, bright:.96, contrast:1.05, vignette:.42 });
+      document.documentElement.style.setProperty('--crt', .3);
+      document.documentElement.style.setProperty('--hue', '10deg');
+      $levelHelper.textContent = '2: 꿈속 — 현실과 꿈의 경계가 희미합니다.';
+    } else {
+      // 현실 붕괴
+      setFilter({ blur: 4, grain:.26, sat:.85, bright:.94, contrast:1.12, vignette:.55 });
+      document.documentElement.style.setProperty('--crt', .55);
+      document.documentElement.style.setProperty('--shake', 1);
+      document.documentElement.style.setProperty('--hue', '-8deg');
+      toggleShake(true); // 🔹 이때만 다시 흔들기 ON
+      $levelHelper.textContent = '3: 현실 붕괴 — 당신은 여전히 “당신”인가요?';
+    }
+
+    // 레벨 바꿀 때 살짝 안내
+    showToast('몰입 레벨: ' + state.level);
+  }
+
+  function setFilter({blur, grain, sat, bright, contrast, vignette}){
+    document.documentElement.style.setProperty('--blur', blur+'px');
+    document.documentElement.style.setProperty('--grain', grain);
+    document.documentElement.style.setProperty('--sat', sat);
+    document.documentElement.style.setProperty('--bright', bright);
+    document.documentElement.style.setProperty('--contrast', contrast);
+    document.documentElement.style.setProperty('--vignette', vignette);
+  }
+
+  function setDistortion(val){
+    state.distortion = parseInt(val,10);
+    // 왜곡: blur / grain / vignette를 함께 조정
+    const t = state.distortion/100;
+    const blur = 1 + t*6;           // 1px ~ 7px
+    const grain = .08 + t*.38;      // 0.08 ~ 0.46
+    const vig = .20 + t*.60;        // 0.2 ~ 0.8
+    document.documentElement.style.setProperty('--blur', blur+'px');
+    document.documentElement.style.setProperty('--grain', grain);
+    document.documentElement.style.setProperty('--vignette', vig);
+    $distoHelper.textContent = `현재: ${state.distortion} — 때로 진실은 고통스럽습니다.`;
+  }
+
+  function toggleEmotion(on){
+    state.emotion = !!on;
+    document.documentElement.style.setProperty('--pulse', on?1:0);
+    $pulse.classList.toggle('on', on);
+    showToast(on ? '감정 피드백: 활성화' : '감정 피드백: 비활성화');
+  }
+
+  function toggleShake(enable){
+    const cls = 'shake';
+    if(enable){
+      if(!$preview.classList.contains(cls)) $preview.classList.add(cls);
+    }else{
+      $preview.classList.remove(cls);
+    }
+  }
+
+  // 초기 상태
+  setLevel(1);
+  setDistortion(35);
+  toggleEmotion(false);
+
+  // ESC로 닫기
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && $imm.hasAttribute('open')) closeImmersionOptions(false);
+  });
+
+  // 데모: 자동 열기
+  window.addEventListener('load', ()=> {
+    // 프로젝트에 통합할 땐 제거하고, 메인에서 openImmersionOptions() 호출
+    openImmersionOptions();
+  });
+</script>
+</body>
+</html>

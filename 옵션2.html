@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>옵션 — 빠른 승부수 4종</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css"/>
+<style>
+  :root{
+    --bg:#0b0b0b; --ink:#e9e6df; --muted:#b8b1a2; --accent:#e6d9b6; --stroke:#ffffff22;
+    --blur:1px; --grain:.10; --vig:.25; --sat:.98; --con:1.02; --crt:0; --shake:0;
+    --subs-bg:0;   /* 0 none, 1 dark, 2 gold */
+    --subs-size:16px;
+  }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Pretendard Variable',Pretendard,system-ui;overflow:hidden}
+
+  /* Top bar */
+  .top{
+    position:fixed; inset:0 0 auto 0; height:56px; display:flex; align-items:center; gap:12px;
+    padding:0 14px; background:linear-gradient(#0b0b0bcc,#0b0b0b80); border-bottom:1px solid var(--stroke); z-index:10;
+  }
+  .top h1{margin:0;font-size:15px;color:var(--accent);font-weight:800}
+  .spacer{flex:1}
+  select, .btn{
+    background:#141414; color:#ddd; border:1px solid var(--stroke); border-radius:10px; height:36px; padding:0 10px;
+  }
+  .btn{cursor:pointer}
+  .btn.primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+  .btn:hover{filter:brightness(.95)}
+
+  /* Layout */
+  .wrap{position:fixed; inset:56px 0 0 0; display:grid; grid-template-columns: minmax(300px,1fr) 420px; gap:16px; padding:16px}
+  .panel{background:#141414;border:1px solid var(--stroke);border-radius:14px}
+  .left{position:relative;overflow:hidden}
+  .preview{
+    position:absolute; inset:0; background:#090909 center/cover no-repeat;
+    filter: blur(var(--blur)) saturate(var(--sat)) contrast(var(--con));
+  }
+  .vignette::after{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(115% 90% at 50% 100%, rgba(0,0,0,calc(var(--vig)*.15)) 0%,
+                                                   rgba(0,0,0,calc(var(--vig)*.45)) 60%,
+                                                   rgba(0,0,0,calc(var(--vig)*.85)) 95%);
+  }
+  .crt{position:absolute; inset:0; opacity:calc(var(--crt)); background:repeating-linear-gradient(to bottom, rgba(255,255,255,.06), rgba(255,255,255,.06) 1px, transparent 2px); mix-blend-mode:overlay; pointer-events:none}
+  .grain{position:absolute; inset:0; opacity:.15; mix-blend-mode:overlay; pointer-events:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox=\"0 0 100 100\"><filter id=\"n\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.8\" numOctaves=\"2\" stitchTiles=\"stitch\"/></filter><rect width=\"100%\" height=\"100%\" filter=\"url(%23n)\" opacity=\"0.65\"/></svg>'); background-size:220px 220px; animation:grain 1.6s steps(6,end) infinite}
+  .shake{animation:shake .45s linear infinite}
+  .tags{position:absolute; top:10px; right:10px; display:flex; gap:6px; z-index:2}
+  .badge{padding:6px 10px; background:#0009; border:1px solid var(--stroke); border-radius:999px; font-size:12px}
+
+  /* scene tabs */
+  .tabs{position:absolute; left:10px; top:10px; display:flex; gap:8px; z-index:2}
+  .tab{background:#0009; border:1px solid var(--stroke); color:#ddd; font-size:12px; height:32px; padding:0 10px; border-radius:999px; cursor:pointer}
+  .tab.active{background:var(--accent); color:#000; border-color:var(--accent)}
+
+  /* subtitle sample */
+  .subs{
+    position:absolute; left:50%; bottom:24px; transform:translateX(-50%);
+    padding:6px 12px; border-radius:8px; font-size:var(--subs-size); line-height:1.5; text-align:center; z-index:2;
+    background: transparent; color:#eee; border:1px solid transparent;
+  }
+  .subs.bg-dark{background:#000000a6; border-color:#ffffff22}
+  .subs.bg-gold{background:#463c22b0; border-color:#bda869}
+  .controls{position:absolute; right:10px; bottom:10px; display:flex; gap:8px; z-index:2}
+  .ghost{background:#0000; border:1px solid var(--stroke); color:#ddd; padding:8px 12px; border-radius:10px; cursor:pointer}
+  .ghost:hover{background:#1b1b1b}
+
+  /* right panels */
+  .right{display:flex; flex-direction:column; gap:12px}
+  .card{padding:14px 14px 12px}
+  .card h2{margin:0 0 8px; font-size:16px; color:var(--accent)}
+  .row{display:flex; align-items:center; gap:10px; margin:8px 0}
+  .row label{width:130px; color:#dcd6c6; font-size:13px}
+  input[type="range"]{flex:1}
+
+  /* safety modal */
+  .modal{position:fixed; inset:0; display:none; place-items:center; background:#000000c8; z-index:20}
+  .modal[open]{display:grid}
+  .sheet{width:min(520px,92vw); background:#151515; border:1px solid var(--stroke); border-radius:14px; padding:16px}
+  .sheet h3{margin:0 0 6px; color:var(--accent)}
+  .sheet p{margin:8px 0; color:#cfc8b8}
+  .sheet .actions{display:flex; justify-content:flex-end; gap:8px; margin-top:10px}
+
+  /* animations */
+  @keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-2%,1%)}50%{transform:translate(1%,-1%)}75%{transform:translate(2%,2%)}100%{transform:translate(0,0)}}
+  @keyframes shake{0%,100%{transform:translate(0,0)}20%{transform:translate(1px,-1px)}40%{transform:translate(-1px,2px)}60%{transform:translate(2px,1px)}80%{transform:translate(-2px,-1px)}}
+  @media (prefers-reduced-motion:reduce){
+    .grain,.shake{animation:none!important}
+  }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="top">
+  <h1>옵션 · 감각 콘솔</h1>
+  <div class="spacer"></div>
+  <label for="preset" style="font-size:12px;color:#dcd6c6">프리셋</label>
+  <select id="preset">
+    <option value="normal">노멀</option>
+    <option value="dream">꿈속</option>
+    <option value="collapse">현실 붕괴</option>
+    <option value="custom">사용자 정의</option>
+  </select>
+  <button class="btn" id="btnRevert">되돌리기</button>
+  <button class="btn primary" id="btnApply">적용</button>
+</div>
+
+<div class="wrap">
+  <!-- LEFT: Preview -->
+  <section class="panel left">
+    <div class="tabs">
+      <button class="tab active" data-scene="close">인물 근접</button>
+      <button class="tab" data-scene="night">야외 어둠</button>
+      <button class="tab" data-scene="text">텍스트 화면</button>
+    </div>
+
+    <div class="tags">
+      <div class="badge" id="tagPreset">노멀</div>
+      <div class="badge" id="tagStatus">왜곡 25 · 감정 OFF</div>
+    </div>
+
+    <div class="preview vignette" id="preview"></div>
+    <div class="crt" id="crt"></div>
+    <div class="grain"></div>
+
+    <div class="subs" id="subs">“여긴… 어디지?”</div>
+
+    <div class="controls">
+      <button class="ghost" id="btnTest">기억 복원 3초 테스트</button>
+    </div>
+  </section>
+
+  <!-- RIGHT: Controls -->
+  <aside class="right">
+    <div class="panel card">
+      <h2>🎧 몰입</h2>
+      <div class="row">
+        <label>CRT/노이즈</label>
+        <input id="crtRange" type="range" min="0" max="100" value="0"/>
+      </div>
+      <div class="row">
+        <label>흔들림</label>
+        <input id="shakeRange" type="range" min="0" max="100" value="0"/>
+      </div>
+      <div class="row">
+        <label>채도/대비</label>
+        <input id="satRange" type="range" min="70" max="130" value="98"/>
+        <input id="conRange" type="range" min="95" max="120" value="102"/>
+      </div>
+      <div class="row">
+        <label>비네팅</label>
+        <input id="vigRange" type="range" min="0" max="80" value="25"/>
+      </div>
+    </div>
+
+    <div class="panel card">
+      <h2>💓 감정 피드백</h2>
+      <div class="row">
+        <label>활성화</label>
+        <input id="emotionToggle" type="checkbox"/>
+      </div>
+      <p style="color:#cbbfa6;font-size:12px">모션 민감 모드가 감지되면 자동으로 OFF됩니다.</p>
+    </div>
+
+    <div class="panel card">
+      <h2>🧰 개인화 · 접근성</h2>
+      <div class="row">
+        <label>자막 글자 크기</label>
+        <input id="sizeRange" type="range" min="12" max="24" value="16"/>
+      </div>
+      <div class="row">
+        <label>자막 배경</label>
+        <select id="bgSelect">
+          <option value="0">없음</option>
+          <option value="1">암색(가독↑)</option>
+          <option value="2">황금톤</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="panel card">
+      <h2>ℹ️ 안내</h2>
+      <p style="color:#cbbfa6;font-size:13px">“현실 붕괴” 프리셋에서는 일부 장면에서 화면이 불안정하게 보일 수 있습니다.</p>
+    </div>
+  </aside>
+</div>
+
+<!-- Safety Modal -->
+<div class="modal" id="safety">
+  <div class="sheet">
+    <h3>감정 피드백 경고</h3>
+    <p>감정 피드백은 강한 시각/청각 자극을 유발할 수 있어요. 불편하면 언제든 OFF 하세요.</p>
+    <div class="actions">
+      <button class="btn" id="keepOff">OFF 유지</button>
+      <button class="btn primary" id="turnOn">계속(ON)</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- State
+  const state = {
+    preset: 'normal',
+    crt: 0, shake: 0, sat: 98, con: 102, vig: 25,
+    emotion: false, subsBg: 0, subsSize: 16,
+    scene: 'close'
+  };
+  let applied = {...state}; // 되돌리기용 마지막 적용본
+
+  // ---- Elements
+  const $preview = document.getElementById('preview');
+  const $crt = document.getElementById('crt');
+  const $subs = document.getElementById('subs');
+  const $tagPreset = document.getElementById('tagPreset');
+  const $tagStatus = document.getElementById('tagStatus');
+
+  // controls
+  const $preset = document.getElementById('preset');
+  const $btnApply = document.getElementById('btnApply');
+  const $btnRevert = document.getElementById('btnRevert');
+  const $crtRange = document.getElementById('crtRange');
+  const $shakeRange = document.getElementById('shakeRange');
+  const $satRange = document.getElementById('satRange');
+  const $conRange = document.getElementById('conRange');
+  const $vigRange = document.getElementById('vigRange');
+  const $emotionToggle = document.getElementById('emotionToggle');
+  const $sizeRange = document.getElementById('sizeRange');
+  const $bgSelect = document.getElementById('bgSelect');
+  const $btnTest = document.getElementById('btnTest');
+  const $safety = document.getElementById('safety');
+
+  // scenes
+  const sceneBG = {
+    close: 'image.png',
+    night: '인물.jpg',
+    text:  'text.jpg'
+  };
+
+  // ---- Presets
+  const PRESETS = {
+    normal:  {crt:0,  shake:0,  sat:98, con:102, vig:25, label:'노멀'},
+    dream:   {crt:30, shake:0,  sat:106,con:105, vig:42, label:'꿈속'},
+    collapse:{crt:55, shake:100,sat:85, con:112, vig:55, label:'현실 붕괴'},
+    custom:  null
+  };
+
+  function applyPreset(name){
+    state.preset = name;
+    if(name !== 'custom'){
+      const p = PRESETS[name];
+      state.crt=p.crt; state.shake=p.shake; state.sat=p.sat; state.con=p.con; state.vig=p.vig;
+      // sync sliders
+      $crtRange.value=p.crt; $shakeRange.value=p.shake; $satRange.value=p.sat; $conRange.value=p.con; $vigRange.value=p.vig;
+      render();
+    }
+    $tagPreset.textContent = PRESETS[name]?.label || '사용자 정의';
+  }
+
+  // ---- Render
+  function render(){
+    document.documentElement.style.setProperty('--crt', state.crt/100);
+    document.documentElement.style.setProperty('--vig', state.vig/100);
+    document.documentElement.style.setProperty('--sat', state.sat/100);
+    document.documentElement.style.setProperty('--con', state.con/100);
+    document.documentElement.style.setProperty('--shake', state.shake>0?1:0);
+
+    $crt.style.opacity = state.crt/100;
+    $preview.classList.toggle('shake', state.shake>0);
+    $preview.style.backgroundImage = `url('${sceneBG[state.scene]}')`;
+
+    // subtitles
+    document.documentElement.style.setProperty('--subs-size', state.subsSize+'px');
+    $subs.classList.remove('bg-dark','bg-gold');
+    if(state.subsBg==1) $subs.classList.add('bg-dark');
+    if(state.subsBg==2) $subs.classList.add('bg-gold');
+
+    $tagStatus.textContent = `왜곡 ${state.vig} · 감정 ${state.emotion?'ON':'OFF'}`;
+  }
+
+  // ---- Bindings
+  document.querySelectorAll('.tab').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      state.scene = btn.dataset.scene;
+      render();
+    });
+  });
+
+  $preset.addEventListener('change', e=> applyPreset(e.target.value));
+  $crtRange.addEventListener('input', e=>{ state.crt=+e.target.value; state.preset='custom'; render(); $preset.value='custom'; });
+  $shakeRange.addEventListener('input', e=>{ state.shake=+e.target.value; state.preset='custom'; render(); $preset.value='custom'; });
+  $satRange.addEventListener('input', e=>{ state.sat=+e.target.value; state.preset='custom'; render(); $preset.value='custom'; });
+  $conRange.addEventListener('input', e=>{ state.con=+e.target.value; state.preset='custom'; render(); $preset.value='custom'; });
+  $vigRange.addEventListener('input', e=>{ state.vig=+e.target.value; state.preset='custom'; render(); $preset.value='custom'; });
+
+  // emotion safety
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(prefersReducedMotion){ $emotionToggle.checked=false; state.emotion=false; }
+  $emotionToggle.addEventListener('change', e=>{
+    if(e.target.checked){
+      if(prefersReducedMotion){
+        // 자동 차단 알림
+        e.target.checked=false; state.emotion=false;
+        openSafety('시스템에서 모션 최소화가 설정되어 있어 감정 피드백을 자동으로 OFF했습니다.');
+      }else{
+        openSafety();
+      }
+    }else{
+      state.emotion=false;
+      render();
+    }
+  });
+  function openSafety(msg){
+    if(msg) $safety.querySelector('p').textContent = msg;
+    $safety.setAttribute('open','');
+  }
+  document.getElementById('keepOff').onclick = ()=>{ state.emotion=false; $emotionToggle.checked=false; $safety.removeAttribute('open'); render(); };
+  document.getElementById('turnOn').onclick  = ()=>{ state.emotion=true;  $emotionToggle.checked=true;  $safety.removeAttribute('open'); render(); };
+
+  // personalization
+  $sizeRange.addEventListener('input', e=>{ state.subsSize=+e.target.value; render(); });
+  $bgSelect.addEventListener('change', e=>{ state.subsBg=+e.target.value; render(); });
+
+  // apply / revert
+  $btnApply.addEventListener('click', ()=>{
+    applied = {...state};
+    alert('설정을 적용했습니다.');
+  });
+  $btnRevert.addEventListener('click', ()=>{
+    state.preset = applied.preset;
+    Object.assign(state, applied);
+    // sync UI
+    $preset.value=state.preset;
+    $crtRange.value=state.crt; $shakeRange.value=state.shake; $satRange.value=state.sat; $conRange.value=state.con; $vigRange.value=state.vig;
+    $emotionToggle.checked=state.emotion; $sizeRange.value=state.subsSize; $bgSelect.value=state.subsBg;
+    render();
+  });
+
+  // memory restore 3s test
+  let testing=false;
+  $btnTest.addEventListener('click', ()=>{
+    if(testing) return;
+    testing=true;
+    const old = { ...state };
+    // 3초 동안 왜곡/CRT/흔들림 강하게
+    state.crt = Math.max(state.crt, 60);
+    state.vig = Math.max(state.vig, 60);
+    state.shake = 100;
+    render();
+    setTimeout(()=>{
+      Object.assign(state, old);
+      render();
+      testing=false;
+    }, 3000);
+  });
+
+  // init
+  applyPreset('normal');
+  render();
+</script>
+</body>
+</html>

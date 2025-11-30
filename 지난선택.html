@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>지난 선택 보기 — 인터랙티브 소설</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css"/>
+
+<style>
+  :root{
+    --bg:#0b0b0b; --ink:#e9e6df; --muted:#b8b1a2;
+    --stroke:#ffffff22; --accent:#e6d9b6; --glow:#ffe9b466;
+    --lock:#8b877b;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Pretendard Variable',Pretendard,system-ui;
+  }
+
+  header{
+    width:100%;
+    padding:20px 40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+  }
+  header h1{
+    margin:0;
+    font-size:clamp(22px,3.2vw,40px);
+    font-weight:800;
+    color:var(--accent);
+    text-align:center;
+  }
+  .back-btn{
+    position:absolute;
+    right:40px;
+    top:50%;
+    transform:translateY(-50%);
+    background:none;
+    border:1px solid var(--accent);
+    color:var(--accent);
+    font-size:.95rem;
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer;
+    transition:all .25s;
+  }
+  .back-btn:hover{
+    background:var(--accent);
+    color:#000;
+  }
+
+  /* 시연용 버튼 */
+  .dev-controls{
+    position:absolute;
+    left:40px;
+    top:50%;
+    transform:translateY(-50%);
+    display:flex;
+    gap:6px;
+  }
+  .dev-btn{
+    background:none;
+    border:1px solid #ffffff33;
+    color:#b8b1a2;
+    font-size:.75rem;
+    padding:4px 8px;
+    border-radius:999px;
+    cursor:pointer;
+  }
+  .dev-btn.active{
+    border-color:var(--accent);
+    color:var(--accent);
+  }
+
+  /* ===== 캐러셀 ===== */
+  .carousel{
+    position:relative;
+    padding:2vw 3vw 2vw;
+  }
+  .cards-viewport{
+    overflow:hidden;
+    position:relative;
+  }
+
+  .cards-page{
+    width:100%;
+    display:none;
+    grid-template-columns:repeat(3,minmax(260px,1fr));
+    gap:clamp(14px,2vw,28px);
+  }
+  .cards-page.active{
+    display:grid;
+  }
+
+  /* 화살표 버튼 */
+  .carousel-nav{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    background:#000000aa;
+    border:1px solid var(--stroke);
+    border-radius:999px;
+    padding:10px 14px;
+    cursor:pointer;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:5;
+    font-size:28px;
+    line-height:1;
+  }
+  .carousel-nav.prev{left:16px;}
+  .carousel-nav.next{right:16px;}
+  .carousel-nav.disabled{
+    opacity:.2;
+    pointer-events:none;
+  }
+
+  .card{
+    position:relative;
+    height:min(72vh,720px);
+    border-radius:12px;
+    overflow:hidden;
+    background:#151515;
+    border:1px solid var(--stroke);
+    cursor:pointer;
+    transition:transform .25s,border-color .25s,box-shadow .25s;
+    box-shadow:0 10px 30px #0007 inset,0 10px 30px #0007;
+  }
+  .card .bg{
+    position:absolute;
+    inset:0;
+    background-size:cover;
+    background-position:center;
+    filter:brightness(.92) contrast(1.02) saturate(.98);
+    transform:scale(1.02);
+    transition:transform .4s ease,filter .35s ease;
+    z-index:0;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(120% 85% at 50% 100%,#00000033 0%,#00000055 55%,#00000077 85%);
+    z-index:1;
+    pointer-events:none;
+  }
+  .badge{
+    position:absolute;
+    top:10px;
+    right:10px;
+    background:#0009;
+    border:1px solid var(--stroke);
+    padding:4px 8px;
+    border-radius:6px;
+    font-size:.8rem;
+    color:var(--ink);
+    backdrop-filter:blur(2px);
+    z-index:3;
+  }
+  .hover-label{
+    position:absolute;
+    inset:0;
+    display:grid;
+    place-items:center;
+    opacity:0;
+    background:linear-gradient(180deg,#0000 30%,#0006 70%);
+    transition:opacity .25s;
+    z-index:3;
+  }
+  .hover-label span{
+    padding:.5em .8em;
+    border:1px solid var(--accent);
+    color:var(--accent);
+    border-radius:999px;
+    font-size:.85rem;
+    background:#0008;
+    backdrop-filter:blur(2px);
+  }
+  .card:not(.locked):hover{
+    transform:translateY(-6px);
+    border-color:var(--glow);
+    box-shadow:0 0 0 1px var(--glow) inset,0 0 34px var(--glow);
+  }
+  .card:not(.locked):hover .bg{
+    transform:scale(1.06);
+    filter:brightness(1.0) contrast(1.05) saturate(1.05);
+  }
+  .card:not(.locked):hover .hover-label{opacity:1}
+
+  .card.locked{
+    cursor:not-allowed;
+    border-color:#00000055;
+  }
+  .card.locked .bg{
+    filter:grayscale(.9) brightness(.62) contrast(.98);
+  }
+
+  .lock-badge{
+    position:absolute;
+    top:10px;
+    right:10px;
+    padding:4px 8px;
+    border:1px solid #ffffff2a;
+    background:#000000b0;
+    border-radius:6px;
+    font-size:.8rem;
+    color:var(--lock);
+    display:flex;
+    align-items:center;
+    gap:6px;
+    z-index:3;
+  }
+  .lock-badge svg{width:14px;height:14px}
+  .center-lock{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    flex-direction:column;
+    background:linear-gradient(180deg,#00000040 0%,#00000088 100%);
+    text-align:center;
+    z-index:3;
+  }
+  .center-lock svg{
+    width:56px;
+    height:56px;
+    color:var(--lock);
+    opacity:.95;
+  }
+  .center-lock .lock-text{
+    color:#d8cfb6;
+    opacity:.95;
+    font-size:1rem;
+    letter-spacing:.02em;
+  }
+
+  .card:not(.locked) .lock-badge,
+  .card:not(.locked) .center-lock{
+    display:none;
+  }
+
+  .choice-wrap{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .choice-wrap .card{
+    height:min(72vh,720px);
+  }
+  .choice-caption{
+    padding:4px 2px 0;
+  }
+  .choice-caption .kicker{
+    font-size:.9rem;
+    color:#cfc8b8;
+  }
+  .choice-caption .title{
+    margin:.1em 0;
+    font-size:1.1rem;
+    font-weight:800;
+    color:var(--accent);
+  }
+  .choice-caption .desc{
+    font-size:.9rem;
+    color:var(--muted);
+    line-height:1.6;
+  }
+
+  /* ====== 모달 ====== */
+  .modal{
+    position:fixed;
+    inset:0;
+    display:none;
+    place-items:center;
+    padding:24px;
+    background:#000000aa;
+    z-index:1000;
+  }
+  .modal[open]{display:grid;}
+  .sheet{
+    width:min(900px, 92vw);
+    max-height:86vh;
+    overflow:hidden;
+    background:#141414;
+    border:1px solid #ffffff22;
+    border-radius:14px;
+    box-shadow:0 30px 80px #000;
+    display:grid;
+    grid-template-rows:auto 1fr auto;
+  }
+  .sheet header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 18px;
+    border-bottom:1px solid #ffffff1a;
+  }
+  .sheet header h2{
+    margin:0;
+    font-size:1.4rem;
+    color:var(--accent);
+  }
+  .close-btn{
+    background:none;
+    border:1px solid var(--accent);
+    color:var(--accent);
+    border-radius:8px;
+    padding:6px 10px;
+    cursor:pointer;
+  }
+  .close-btn:hover{
+    background:var(--accent);
+    color:#000;
+  }
+  .sheet .body{
+    display:grid;
+    grid-template-columns:160px 1fr;
+    gap:18px;
+    padding:18px;
+    overflow:auto;
+  }
+  .cover{
+    width:100%;
+    aspect-ratio:3/4;
+    background:#222;
+    border:1px solid #ffffff22;
+    border-radius:10px;
+    background-size:cover;
+    background-position:center;
+  }
+  .meta small{color:#bfb8a8}
+  .summary{
+    margin-top:6px;
+    line-height:1.75;
+    color:#ddd;
+  }
+  .actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    padding:12px 18px;
+    border-top:1px solid #ffffff1a;
+  }
+  .ghost{
+    background:none;
+    border:1px solid #ffffff2a;
+    color:#ddd;
+    border-radius:8px;
+    padding:8px 12px;
+    cursor:pointer;
+  }
+  .primary{
+    background:var(--accent);
+    border:1px solid var(--accent);
+    color:#000;
+    border-radius:8px;
+    padding:8px 14px;
+    cursor:pointer;
+    font-weight:700;
+  }
+
+  .ending-list{
+    margin-top:14px;
+    border-top:1px solid #ffffff1a;
+    padding-top:10px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+
+  .ending-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:.9rem;
+    padding:4px 6px;
+    border-radius:8px;
+    transition:
+      background .18s ease,
+      transform .15s ease,
+      box-shadow .18s ease;
+  }
+
+  .ending-item .pill{
+    font-size:.75rem;
+    padding:2px 8px;
+    border-radius:999px;
+    border:1px solid #ffffff33;
+    background:#00000080;
+  }
+
+  /* ✅ 해금된 엔딩(예: 엔딩 A)에만 호버 효과 */
+  .ending-item.done{
+    cursor:pointer;
+  }
+  .ending-item.done:hover{
+    background:rgba(255,233,180,.06);
+    transform:translateX(4px);
+    box-shadow:0 0 0 1px rgba(255,233,180,.3);
+  }
+
+  .ending-item.done .pill{
+    border-color:var(--accent);
+    background:#ffe9b41a;
+    color:var(--accent);
+  }
+
+  .ending-item.locked{
+    opacity:.6;
+  }
+  .ending-item.locked .title{
+    letter-spacing:.06em;
+  }
+
+
+  /* ===== 엔딩 모음집 버튼 ===== */
+  .ending-link-wrap{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    margin:4px 0 32px;
+  }
+  .ending-btn{
+    background:transparent;
+    border:1px solid var(--accent);
+    color:var(--accent);
+    font-size:.85rem;
+    letter-spacing:.04em;
+    padding:8px 18px;
+    border-radius:999px;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .ending-btn span.icon{
+    font-size:.9rem;
+  }
+  .ending-btn:hover{
+    background:var(--accent);
+    color:#000;
+  }
+</style>
+</head>
+
+<body>
+  <header>
+    <div class="dev-controls">
+      <button class="dev-btn" data-mode="locked" onclick="setViewMode('locked')">RESET</button>
+      <button class="dev-btn" data-mode="normal" onclick="setViewMode('normal')">NORMAL</button>
+      <button class="dev-btn" data-mode="open" onclick="setViewMode('open')">ALL ON</button>
+    </div>
+
+    <h1>지난 선택 보기</h1>
+    <button class="back-btn" onclick="location.href='index.html'">← 돌아가기</button>
+  </header>
+
+  <!-- 카드 캐러셀 -->
+  <main class="carousel">
+    <button class="carousel-nav prev" aria-label="이전 선택 보기">‹</button>
+
+    <div class="cards-viewport">
+      <!-- ===== 페이지 0 ===== -->
+      <section class="cards-page active" data-page="0">
+        <!-- 선택 1 -->
+        <section class="choice-wrap">
+          <article class="card" data-story="branch1">
+            <div class="bg" style="background-image:url('로고.jpg');"></div>
+
+            <div class="lock-badge">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z"/></svg>
+              잠금
+            </div>
+            <div class="center-lock">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z"/></svg>
+              <div class="lock-text">잠금됨 — 아직 이 분기는 열리지 않았습니다.</div>
+            </div>
+
+            <div class="badge">0/3</div>
+            <div class="hover-label"><span>줄거리 + 엔딩 보기</span></div>
+          </article>
+
+          <div class="choice-caption">
+            <div class="kicker">선택 1</div>
+            <div class="title">기억의 조각</div>
+            <div class="desc">도살자와 관련된 단서를 모으기 시작하는 분기입니다.</div>
+          </div>
+        </section>
+
+        <!-- 선택 2 -->
+        <section class="choice-wrap">
+          <article class="card locked" data-story="branch2" aria-disabled="true">
+            <div class="bg" style="background-image:url('선택2.png');"></div>
+
+            <div class="lock-badge">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z"/></svg>
+              잠금
+            </div>
+            <div class="center-lock">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z"/></svg>
+              <div class="lock-text">잠금됨 — 아직 이 분기는 열리지 않았습니다.</div>
+            </div>
+
+            <div class="badge">0/5</div>
+            <div class="hover-label"><span>줄거리 + 엔딩 보기</span></div>
+          </article>
+
+          <div class="choice-caption">
+            <div class="kicker">선택 2</div>
+            <div class="title">피의 교차로</div>
+            <div class="desc">폭력과 증거 처리 선택들이 모이는 분기입니다.</div>
+          </div>
+        </section>
+
+        <!-- 선택 3 -->
+        <section class="choice-wrap">
+          <article class="card locked" data-story="branch3" aria-disabled="true">
+            <div class="bg" style="background-image:url('선택3.png');"></div>
+
+            <div class="lock-badge">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z"/></svg>
+              잠금
+            </div>
+            <div class="center-lock">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z"/></svg>
+              <div class="lock-text">잠금됨 - 아직 이 분기는 열리지 않았습니다.</div>
+            </div>
+
+            <div class="badge">0/20</div>
+            <div class="hover-label"><span>줄거리 + 엔딩 보기</span></div>
+          </article>
+
+          <div class="choice-caption">
+            <div class="kicker">선택 3</div>
+            <div class="title">봉인된 기억</div>
+            <div class="desc">과거와 메타 요소를 다루는 최종 분기입니다.</div>
+          </div>
+        </section>
+      </section>
+
+      <!-- ===== 페이지 1 (예시) ===== -->
+      <section class="cards-page" data-page="1">
+        <section class="choice-wrap">
+          <article class="card locked" data-story="branch4" aria-disabled="true">
+            <div class="bg" style="background-image:url('choice4.jpg');"></div>
+            <div class="lock-badge">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z"/></svg>
+              잠금
+            </div>
+            <div class="center-lock">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z"/></svg>
+              <div class="lock-text">추가 분기 — 준비 중입니다.</div>
+            </div>
+            <div class="badge">0/1</div>
+            <div class="hover-label"><span>줄거리 + 엔딩 보기</span></div>
+          </article>
+          <div class="choice-caption">
+            <div class="kicker">선택 4</div>
+            <div class="title">미정의 분기</div>
+            <div class="desc">추가 시나리오를 위한 자리입니다.</div>
+          </div>
+        </section>
+
+        <section class="choice-wrap">
+          <article class="card locked" data-story="branch5" aria-disabled="true">
+            <div class="bg" style="background-image:url('choice5.jpg');"></div>
+            <div class="lock-badge">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z"/></svg>
+              잠금
+            </div>
+            <div class="center-lock">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z"/></svg>
+              <div class="lock-text">추가 분기 — 준비 중입니다.</div>
+            </div>
+            <div class="badge">0/1</div>
+            <div class="hover-label"><span>줄거리 + 엔딩 보기</span></div>
+          </article>
+          <div class="choice-caption">
+            <div class="kicker">선택 5</div>
+            <div class="title">미정의 분기 2</div>
+            <div class="desc">나중에 내용을 채워 넣을 수 있습니다.</div>
+          </div>
+        </section>
+
+        <section class="choice-wrap">
+          <article class="card locked" data-story="branch6" aria-disabled="true">
+            <div class="bg" style="background-image:url('choice6.jpg');"></div>
+            <div class="lock-badge">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z"/></svg>
+              잠금
+            </div>
+            <div class="center-lock">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z"/></svg>
+              <div class="lock-text">추가 분기 — 준비 중입니다.</div>
+            </div>
+            <div class="badge">0/1</div>
+            <div class="hover-label"><span>줄거리 + 엔딩 보기</span></div>
+          </article>
+          <div class="choice-caption">
+            <div class="kicker">선택 6</div>
+            <div class="title">미정의 분기 3</div>
+            <div class="desc">필요 없으면 이 페이지 전체를 삭제해도 됩니다.</div>
+          </div>
+        </section>
+      </section>
+    </div>
+
+    <button class="carousel-nav next" aria-label="다음 선택 보기">›</button>
+  </main>
+
+  <!-- 카드 아래 중앙: 엔딩 모음집 버튼 -->
+  <div class="ending-link-wrap">
+    <button class="ending-btn" onclick="location.href='참고.html'">
+      <span class="icon">✦</span>
+      엔딩 모음집 보기
+    </button>
+  </div>
+
+  <!-- ===== 모달 ===== -->
+  <dialog class="modal" id="storyModal">
+    <div class="sheet" role="document">
+      <header>
+        <h2 id="storyTitle">제목</h2>
+        <button class="close-btn" onclick="closeStory()">닫기 ✕</button>
+      </header>
+      <div class="body">
+        <div class="cover" id="storyCover" style="background-image:url('선택1.png')"></div>
+        <div>
+          <div class="meta"><small id="storyMeta">분기 정보</small></div>
+          <div class="summary" id="storySummary"></div>
+          <div class="ending-list" id="endingList"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="ghost" onclick="closeStory()">뒤로</button>
+        <button class="primary" onclick="startFromStory()">이 분위기로 시작하기</button>
+      </div>
+    </div>
+  </dialog>
+
+<script>
+/* ====== 엔딩 / 브랜치 데이터 ====== */
+const ENDINGS = {
+  ENDING_A:{id:'ENDING_A',title:'엔딩 A — 기억의 조각 완성',desc:'도살자와 과거를 직면한 진실 엔딩.'},
+  ENDING_B:{id:'ENDING_B',title:'엔딩 B — 끝나지 않는 밤',desc:'현실과 환각이 뒤섞인 루프 엔딩.'},
+  ENDING_C:{id:'ENDING_C',title:'엔딩 C — 마지막 선택',desc:'누군가를 지키기 위해 자신을 희생하는 엔딩.'},
+  ENDING_D:{id:'ENDING_D',title:'엔딩 D — 조작자에게 인사하기',desc:'이 세계가 인터랙티브 소설임을 깨닫는 메타 엔딩.'}
+};
+
+const STORY_BRANCHES = {
+  branch1:{
+    title:'기억의 조각',
+    meta:'프롤로그 · 사건 개입 전',
+    cover:'선택1.png',
+    paragraphs:[
+      '도살자 사건이 처음 세상에 알려지던 시점. 일상 속 작은 선택들이 나중에 거울처럼 되돌아온다.',
+      '사건에 개입할 것인지, 그냥 스크롤을 넘기듯 지나칠 것인지 플레이어는 첫 결정을 내리게 된다.'
+    ],
+    endings:['ENDING_A','ENDING_B']
+  },
+  branch2:{
+    title:'피의 교차로',
+    meta:'2막 · 폭력과 증거',
+    cover:'선택2.png',
+    paragraphs:[
+      '의심과 공포가 극에 달하는 지점. 공격할 것인지, 물러설 것인지, 증거를 숨길 것인지의 선택들이 모이는 곳이다.'
+    ],
+    endings:['ENDING_B','ENDING_C']
+  },
+  branch3:{
+    title:'봉인된 기억',
+    meta:'3막 · 과거와 메타',
+    cover:'선택3.png',
+    paragraphs:[
+      '금고의 코드와 상징을 통해 과거와 실험의 진실에 도달하는 분기. 플레이어는 세계의 규칙 자체를 의심하게 된다.'
+    ],
+    endings:['ENDING_A','ENDING_C','ENDING_D']
+  },
+  branch4:{title:'미정의 분기',meta:'추가 분기 · 준비 중',cover:'choice4.jpg',paragraphs:['추가 시나리오를 위해 비워둔 자리입니다.'],endings:['ENDING_A']},
+  branch5:{title:'미정의 분기 2',meta:'추가 분기 · 준비 중',cover:'choice5.jpg',paragraphs:['나중에 내용을 채워 넣을 수 있습니다.'],endings:['ENDING_B']},
+  branch6:{title:'미정의 분기 3',meta:'추가 분기 · 준비 중',cover:'choice6.jpg',paragraphs:['필요 없다면 이 분기는 삭제해도 됩니다.'],endings:['ENDING_D']}
+};
+
+let VIEW_MODE = 'normal';
+let currentBranchKey = null;
+
+const BRANCH_ROUTES = {
+  branch1:'choice1.html',
+  branch2:'choice2.html',
+  branch3:'choice3.html',
+  branch4:'choice4.html',
+  branch5:'choice5.html',
+  branch6:'choice6.html'
+};
+
+const modal = document.getElementById('storyModal');
+const elTitle = document.getElementById('storyTitle');
+const elMeta  = document.getElementById('storyMeta');
+const elCover = document.getElementById('storyCover');
+const elSummary = document.getElementById('storySummary');
+const elEndingList = document.getElementById('endingList');
+
+/* 캐러셀 */
+let currentPage = 0;
+let pages, btnPrev, btnNext;
+
+function updateCarousel(){
+  if(!pages || !pages.length) return;
+  pages.forEach((p,idx)=>{
+    p.classList.toggle('active', idx === currentPage);
+  });
+  if(pages.length <= 1){
+    btnPrev.classList.add('disabled');
+    btnNext.classList.add('disabled');
+  }else{
+    btnPrev.classList.toggle('disabled', currentPage === 0);
+    btnNext.classList.toggle('disabled', currentPage === pages.length - 1);
+  }
+}
+
+function initCarousel(){
+  pages   = document.querySelectorAll('.cards-page');
+  btnPrev = document.querySelector('.carousel-nav.prev');
+  btnNext = document.querySelector('.carousel-nav.next');
+  if(!pages.length) return;
+
+  btnPrev.addEventListener('click', ()=>{
+    if(currentPage > 0){ currentPage--; updateCarousel(); }
+  });
+  btnNext.addEventListener('click', ()=>{
+    if(currentPage < pages.length - 1){ currentPage++; updateCarousel(); }
+  });
+
+  updateCarousel();
+}
+
+/* 엔딩 잠금 여부 */
+function isEndingUnlocked(id){
+  if(VIEW_MODE === 'open') return true;
+  if(VIEW_MODE === 'locked') return false;
+  return localStorage.getItem('ending:' + id) === '1';
+}
+
+/* 분기 모달 열기 */
+function openStory(key){
+  const s = STORY_BRANCHES[key];
+  if(!s) return;
+
+  currentBranchKey = key;
+
+  elTitle.textContent = s.title;
+  elMeta.textContent  = s.meta;
+  elCover.style.backgroundImage = `url('${s.cover}')`;
+  elSummary.innerHTML = s.paragraphs.map(p => `<p>${p}</p>`).join("");
+
+  if(s.endings && s.endings.length){
+    let unlockedCount = 0;
+    const html = s.endings.map(eid=>{
+      const ending = ENDINGS[eid];
+      const done = isEndingUnlocked(eid);
+      if(done) unlockedCount++;
+      return `
+        <div class="ending-item ${done ? 'done' : 'locked'}">
+          <span class="pill">${done ? '완료' : '잠금'}</span>
+          <span class="title">${done ? ending.title : '？？？'}</span>
+        </div>`;
+    }).join("");
+    elEndingList.innerHTML = `
+      <div style="font-size:.8rem;color:#bfb8a8;margin-bottom:4px;">
+        이 분기에서 해금 가능한 엔딩 <strong>${unlockedCount}/${s.endings.length}</strong>
+      </div>${html}`;
+  }else{
+    elEndingList.innerHTML = '';
+  }
+
+  modal.setAttribute('open','');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeStory(){
+  modal.removeAttribute('open');
+  document.body.style.overflow = '';
+}
+
+function startFromStory(){
+  if(!currentBranchKey) return;
+  const url = BRANCH_ROUTES[currentBranchKey] || 'choice.html';
+  location.href = url;
+}
+
+/* 카드 상태/배지 업데이트 */
+function updateCardBadges(){
+  document.querySelectorAll('.card').forEach(card=>{
+    const key = card.dataset.story;
+    if(!key) return;
+    const branch = STORY_BRANCHES[key];
+    const badge = card.querySelector('.badge');
+
+    if(branch && badge && branch.endings){
+      const total = branch.endings.length;
+      const cleared = branch.endings.filter(eid=>isEndingUnlocked(eid)).length;
+      badge.textContent = `${cleared}/${total}`;
+    }
+
+    if(VIEW_MODE === 'open'){
+      card.classList.remove('locked');
+      card.removeAttribute('aria-disabled');
+      card.onclick = ()=>openStory(key);
+      card.tabIndex = 0;
+    }else if(VIEW_MODE === 'locked'){
+      card.classList.add('locked');
+      card.setAttribute('aria-disabled','true');
+      card.onclick = null;
+      card.removeAttribute('tabindex');
+    }else{
+      if(card.classList.contains('locked')){
+        card.setAttribute('aria-disabled','true');
+        card.onclick = null;
+        card.removeAttribute('tabindex');
+      }else{
+        card.removeAttribute('aria-disabled');
+        card.onclick = ()=>openStory(key);
+        card.tabIndex = 0;
+      }
+    }
+  });
+}
+
+function setViewMode(mode){
+  VIEW_MODE = mode;
+  document.querySelectorAll('.dev-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+  updateCardBadges();
+}
+
+/* 모달 닫기 핸들러 */
+modal.addEventListener('click', e=>{
+  if(e.target === modal) closeStory();
+});
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape' && modal.hasAttribute('open')) closeStory();
+});
+
+/* 초기 실행 */
+document.addEventListener('DOMContentLoaded', ()=>{
+  initCarousel();
+  setViewMode('normal');
+});
+</script>
+</body>
+</html>

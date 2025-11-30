@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ENDING A — 기억의 조각 완성</title>
+
+  <!-- 폰트 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css"/>
+
+  <style>
+    :root{
+      --bg:#050307;
+      --ink:#f5f0e6;
+      --muted:#b8a9a0;
+      --accent:#ffb36b;
+      --accent-soft:#ffd8a0;
+      --stroke:#ffffff22;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at 0% 0%, #3b1c24 0, #050307 40%, #020103 100%);
+      color:var(--ink);
+      font-family:'Pretendard Variable',Pretendard,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .wrap{
+      width:min(960px, 96vw);
+      max-height:92vh;
+      border-radius:20px;
+      border:1px solid var(--stroke);
+      background:
+        radial-gradient(circle at 0% 0%, #3b1c24 0, #0a050b 45%, #050308 100%);
+      box-shadow:
+        0 24px 90px rgba(0,0,0,.9),
+        0 0 40px rgba(255,150,80,.15);
+      padding:22px clamp(20px,3.2vw,30px);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+
+    /* 상단 타이틀 영역 */
+    .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:18px;
+      margin-bottom:14px;
+    }
+
+    /* ★ 새로 디자인한 BANDERSNATCH 로고 */
+    .logo{
+      position:relative;
+      font-family:'Share Tech Mono',monospace;
+      font-size:clamp(13px,1.5vw,17px);
+      letter-spacing:.48em;
+      text-transform:uppercase;
+      color:#ffe8b6;
+      text-shadow:
+        0 0 6px rgba(255,220,150,.9),
+        0 0 18px rgba(255,120,80,.6);
+      padding-left:.5em;
+    }
+    .logo::before{
+      /* 살짝 어긋난 글자 레이어로 레트로 느낌 */
+      content:"BANDERSNATCH";
+      position:absolute;
+      left:.5em;
+      top:-1px;
+      pointer-events:none;
+      color:rgba(255,140,120,.68);
+      mix-blend-mode:screen;
+      transform:translateX(1px);
+      opacity:.6;
+    }
+    .logo::after{
+      /* 아래 작은 보조 라벨 */
+      content:"ENDING ARCHIVE";
+      position:absolute;
+      left:.52em;
+      top:160%;
+      font-family:'Pretendard Variable',system-ui;
+      font-size:.7rem;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .ending-tag{
+      text-align:right;
+      font-size:.78rem;
+      color:var(--muted);
+      letter-spacing:.18em;
+      text-transform:uppercase;
+    }
+    .ending-tag strong{
+      display:block;
+      font-size:.86rem;
+      letter-spacing:.22em;
+      color:var(--accent-soft);
+    }
+
+    /* 본문 패널 */
+    .panel{
+      flex:1;
+      border-radius:14px;
+      border:1px solid #ffffff1f;
+      background:radial-gradient(circle at 15% 0%, #3a2622 0, #120910 38%, #070509 100%);
+      padding:20px clamp(18px,3vw,26px) 18px;
+      display:flex;
+      flex-direction:column;
+      overflow:auto;
+    }
+
+    .eyebrow{
+      font-size:.78rem;
+      letter-spacing:.28em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:4px;
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size:1.55rem;
+      color:var(--accent);
+    }
+
+    .meta{
+      font-size:.8rem;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:#d6c9c0;
+      margin-bottom:16px;
+    }
+
+    .summary{
+      font-size:.96rem;
+      line-height:1.9;
+      color:var(--ink);
+    }
+    .summary p{margin:.4em 0;}
+
+    .summary p.lead{
+      font-size:1.02rem;
+      color:#f9efe3;
+    }
+
+    /* 선택 경로 멘트 */
+    #routeText{
+      margin-top:10px;
+      font-size:.9rem;
+      line-height:1.7;
+      color:var(--muted);
+    }
+
+    /* 디테일 블럭들 */
+    .detail-grid{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns:1.3fr 1fr;
+      gap:18px;
+      font-size:.9rem;
+    }
+    .detail-block{
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(3,0,0,.35);
+      padding:12px 14px;
+    }
+    .detail-block.full{
+      margin-top:14px;
+      grid-column:1 / -1;
+    }
+
+    .subhead{
+      margin:0 0 6px;
+      font-size:.82rem;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:#f0dfce;
+    }
+
+    .choice-list,
+    .hint-list{
+      margin:4px 0 0;
+      padding-left:1.1em;
+      list-style:disc;
+      color:var(--muted);
+      font-size:.86rem;
+      line-height:1.7;
+    }
+
+    .choice-list li + li,
+    .hint-list li + li{
+      margin-top:2px;
+    }
+
+    /* 버튼 영역 */
+    .buttons{
+      margin-top:22px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .btn{
+      border-radius:999px;
+      padding:8px 18px;
+      font-size:.85rem;
+      letter-spacing:.04em;
+      cursor:pointer;
+      border:1px solid #ffffff33;
+      background:transparent;
+      color:var(--ink);
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .btn.primary{
+      background:var(--accent);
+      border-color:var(--accent);
+      color:#1b0d0b;
+      font-weight:600;
+    }
+    .btn span.icon{
+      font-size:.9rem;
+    }
+    .btn:hover{
+      border-color:var(--accent);
+      box-shadow:0 0 18px rgba(255,179,107,.45);
+    }
+
+    .note{
+      margin-top:12px;
+      font-size:.78rem;
+      color:var(--muted);
+    }
+
+    @media (max-width:640px){
+      body{padding:12px;}
+      .wrap{padding:18px;}
+      .top{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:4px;
+      }
+      .ending-tag{text-align:left;}
+      .detail-grid{
+        grid-template-columns:1fr;
+      }
+      .logo::after{
+        top:150%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- 상단 타이틀 / 엔딩 태그 -->
+    <div class="top">
+      <div class="logo">BANDERSNATCH</div>
+      <div class="ending-tag">
+        <span>INTERACTIVE NOVEL</span>
+        <strong>ENDING A · TRUTH</strong>
+      </div>
+    </div>
+
+    <!-- 본문 패널 -->
+    <section class="panel">
+      <div class="eyebrow">ENDING A</div>
+      <h1>기억의 조각 완성</h1>
+      <div class="meta">STATUS · UNLOCKED · ROUTE DEPTH : 2</div>
+
+      <div class="summary">
+        <p class="lead">
+          당신은 우연처럼 보였던 선택들이 모두 같은 지점을 가리키고 있었다는 사실을 깨닫는다.
+        </p>
+        <p>
+          도살자 사건의 파편 같은 기사들, 서랍 속에 방치됐던 원작 소설, 그리고 화면 너머에서 이어지는
+          누군가의 선택. 이야기는 끝났지만, 이 엔딩에서 주인공은 더 이상 관객이 아니라,
+          사건의 공범으로 남게 된다.
+        </p>
+
+        <!-- path(AA/AB/BA/BB)에 따라 바뀌는 설명 -->
+        <p id="routeText"></p>
+      </div>
+
+      <!-- 선택 요약 / 엔딩 의미 / 다른 엔딩 힌트 -->
+      <div class="detail-grid">
+        <section class="detail-block">
+          <h2 class="subhead">YOUR KEY CHOICES</h2>
+          <ul class="choice-list" id="choiceList">
+            <!-- JS에서 path에 따라 채워짐 -->
+          </ul>
+        </section>
+
+        <section class="detail-block">
+          <h2 class="subhead">WHAT THIS ENDING MEANS</h2>
+          <p style="margin:0; font-size:.88rem; line-height:1.7; color:var(--muted);">
+            이 엔딩에서 주인공은 “무슨 일이었는지 이해한 사람”이 아니라
+            <strong>“알고도 뒤돌아설 수 없었던 사람”</strong>으로 남습니다.
+            진실을 본 대가로, 평범한 일상으로 돌아갈 수 있는 가능성은 거의 사라집니다.
+            대신, 플레이어는 이야기 전체를 다시 읽어보았을 때만 보이는
+            작은 복선들과 연결점을 확인할 수 있습니다.
+          </p>
+        </section>
+      </div>
+
+      <section class="detail-block full">
+        <h2 class="subhead">IF YOU HAD CHOSEN DIFFERENTLY…</h2>
+        <ul class="hint-list">
+          <li>초반에 사건을 <strong>그냥 넘겨버리는 선택</strong>을 반복했다면, ENDING B(루프 엔딩)에 가까워졌을 것입니다.</li>
+          <li>클라이맥스에서 <strong>다른 사람을 지키는 쪽</strong>을 끝까지 밀어붙였을 경우, 희생을 전제로 한 ENDING C로 갈 가능성이 높습니다.</li>
+          <li>도중에 “이게 게임 같다”, “누가 위에서 조종하는 기분” 같은 선택지를 집요하게 골랐다면, 메타적인 방향의 ENDING D로 이어질 수도 있습니다.</li>
+        </ul>
+      </section>
+
+      <!-- 버튼들 -->
+      <div class="buttons">
+        <button class="btn primary" onclick="location.href='Start.html'">
+          <span class="icon">↺</span>
+          처음부터 다시 시작
+        </button>
+        <button class="btn" onclick="location.href='지난선택.html'">
+          <span class="icon">☷</span>
+          지난 선택 보기
+        </button>
+        <button class="btn" onclick="location.href='참고.html'">
+          <span class="icon">✦</span>
+          엔딩 모음집
+        </button>
+      </div>
+
+      <div class="note">
+        이 엔딩을 보면 <strong>ENDING A</strong>가 자동으로 해금되어
+        <em>지난 선택</em> 화면과 <em>엔딩 모음집</em>에서 확인할 수 있습니다.
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // URL 파라미터 읽기
+    function getParam(name){
+      const params = new URLSearchParams(location.search);
+      return params.get(name);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // ✅ 엔딩 A 해금 기록 (지난선택 / endings.html에서 사용)
+      localStorage.setItem('ending:ENDING_A','1');
+
+      const path = getParam('path') || 'AA';
+      const routeText = document.getElementById('routeText');
+      const choiceListEl = document.getElementById('choiceList');
+
+      if(!routeText || !choiceListEl) return;
+
+      let msg = '';
+      let choices = [];
+
+      switch(path){
+        case 'AA':
+          msg =
+            '처음 선택에서 책을 챙겨 나왔고, 두 번째 갈림길에서도 끝까지 도살자의 진실을 파고드는 길을 택했습니다. ' +
+            '이 루트에서 당신은 이야기의 흐름을 밀어붙인 주된 원인이 됩니다.';
+          choices = [
+            '첫 선택에서 책을 챙겨 나가며, 사건과 연결되는 실마리를 버리지 않았다.',
+            '도살자와 관련된 단서들을 외면하지 않고, 더 깊은 정보를 찾아 나섰다.',
+            '마지막 순간에도 기억을 밀어내지 않고, 진실을 정면으로 바라보는 쪽을 골랐다.'
+          ];
+          break;
+        case 'AB':
+          msg =
+            '책을 챙겨 나왔지만, 마지막 순간에는 한 발 물러서는 선택을 했습니다. ' +
+            '사건의 전모는 드러났지만, 몇몇 조각은 일부러 흐릿하게 남겨둔 채 이야기에서 빠져나옵니다.';
+          choices = [
+            '초반에 책을 챙겨 나와 사건과 연결된 정보들을 손에 쥐었다.',
+            '중간까지는 진실을 추적했지만, 결정적인 순간에 스스로를 보호하는 방향을 선택했다.',
+            '완전한 파괴 대신, “어느 정도 알고만 있는 상태”를 유지하려 했다.'
+          ];
+          break;
+        case 'BA':
+          msg =
+            '처음에는 책을 두고 나왔지만, 두 번째 선택에서 결국 사건의 한복판으로 뛰어들었습니다. ' +
+            '뒤늦게 개입한 만큼 더 많은 것을 잃게 되지만, 그만큼 깊은 진실에 닿는 루트입니다.';
+          choices = [
+            '처음에는 책을 두고 떠나며, 사건과 거리를 두려고 했다.',
+            '하지만 이후 선택에서 다시 돌아와 자료를 확인하고, 늦게나마 사건에 개입했다.',
+            '뒤늦게 뛰어든 만큼, 안전보다 진실을 우선하는 위험한 결정을 내렸다.'
+          ];
+          break;
+        case 'BB':
+          msg =
+            '처음부터 끝까지 거리를 두려 했지만, 이 세계는 이미 당신의 존재를 기억하고 있습니다. ' +
+            '당신이 아무것도 하지 않았다고 믿더라도, 선택하지 않은 선택들 역시 이 엔딩의 일부로 남습니다.';
+          choices = [
+            '책을 두고 떠나며, 초반부터 “개입하지 않겠다”는 태도를 유지했다.',
+            '갈림길마다 책임을 회피하거나 유보하는 쪽을 택하며, 누군가 대신 결정해주길 바랐다.',
+            '결국 자신이 직접 한 선택보다, “하지 않은 선택들”이 이야기의 분위기를 결정하게 된다.'
+          ];
+          break;
+        default:
+          msg =
+            '여러 갈림길을 지나 결국 이 엔딩에 도달했습니다. ' +
+            '어떤 조합으로 왔든, 여기까지의 발자국은 지난 선택 화면에서 다시 되짚어볼 수 있습니다.';
+          choices = [
+            '여러 갈림길에서 일관된 태도보다는, 순간적인 감정에 따라 결정을 내렸다.',
+            '그럼에도 불구하고, 당신의 선택들은 결국 진실에 가까운 결말로 모였다.',
+            '다른 조합으로 다시 플레이하면, 전혀 다른 엔딩에 도달할 수도 있다.'
+          ];
+      }
+
+      routeText.textContent = msg;
+      choiceListEl.innerHTML = choices.map(t=>`<li>${t}</li>`).join('');
+    });
+  </script>
+</body>
+</html>

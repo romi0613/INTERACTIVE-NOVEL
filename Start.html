@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Chapter 1 — 기억을 깨우는 소리</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css"/>
+
+<style>
+  :root{ --ink:#fff; --ink-dim:#dcd6c9; --bg:#0b0b0b; --stroke:#ffffff22; --brand:#ffe1a6; }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Pretendard Variable','Pretendard',system-ui,Apple SD Gothic Neo,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    overflow:hidden;
+  }
+
+  /* 상단 Back */
+  .back{
+    position:fixed; left:14px; top:14px; z-index:50;
+    display:inline-flex; align-items:center; gap:8px;
+    padding:10px 12px; border-radius:999px;
+    background:#0f0f10cc; border:1px solid #ffffff2e; color:#fff; text-decoration:none;
+    backdrop-filter:blur(6px); font-size:14px; line-height:1; transition:.2s ease;
+  }
+  .back:hover{ transform:translateY(-1px); border-color:#ffffff55 }
+  .back kbd{font:12px/1 monospace; padding:2px 6px; border:1px solid #ffffff3a; border-radius:6px; background:#0b0b0bcc}
+
+ 
+/* 좌/우 레이아웃 */
+.stage{position:relative; height:100%; display:flex; isolation:isolate}
+.left,.right{height:100%; overflow:auto}
+
+/* 4:6 비율 고정 */
+.left{
+  width:40%;
+  padding:6vh clamp(20px,4vw,56px);
+  border-right:1px solid var(--stroke);
+  background:linear-gradient(180deg,#0e0f11,#0b0b0b);
+}
+
+.right{
+  width:60%;
+  position:relative;
+  background:#000;
+}
+
+/* Divider 완전 제거 */
+.divider{
+  display:none !important;
+}
+
+
+  /* --- Divider: hit-area 크게, 항상 최상위 --- */
+  .divider{
+    position:absolute; top:0; bottom:0; left:58%;
+    width:18px; margin-left:-9px;
+    display:grid; place-items:center; cursor:ew-resize;
+    z-index:999; pointer-events:auto;
+  }
+  .divider::before{
+    content:""; position:absolute; top:0; bottom:0; left:-20px; right:-20px;
+    background:transparent; /* 보이지 않지만 이벤트는 잡음 */
+  }
+  .divider .line{ width:2px; height:100%;
+    background:linear-gradient(180deg,#ffffff42 0,#ffffff18 100%);
+  }
+  .divider .nub{
+    position:absolute; top:50%; transform:translateY(-50%);
+    width:28px; height:28px; border-radius:50%;
+    background:#0f0f10; border:1px solid #ffffff38;
+    display:grid; place-items:center; color:#ffffffb3
+  }
+  .divider .nub::before{content:"⋮"}
+  body.drag-split{ cursor: ew-resize; }
+  body.drag-split *{ user-select:none !important; }
+
+  .badge{margin:0 2px 0; font-size:12px; letter-spacing:.18em; opacity:.8; text-transform:uppercase}
+  h1{margin:.4em 0 .45em; font-size:clamp(28px,4vw,44px); line-height:1.15}
+  .lead{color:var(--ink-dim); margin:.2em 0 1em; font-size:15px}
+  .meta{display:flex; gap:18px; font-size:12px; color:#cfc8bb; opacity:.9; margin-bottom:18px}
+  hr{border:none; border-top:1px solid #ffffff22; margin:18px 0 22px}
+
+  .content{font-size:18px; line-height:1.95; letter-spacing:.01em; color:#f2ede3}
+  .content p{margin:0 0 1.05em}
+  .content em{font-style:normal; color:#fff}
+  .muted{opacity:.75; font-size:14px}
+ 
+
+
+  /* 오른쪽 이미지 뷰어(줌/팬) */
+  .hero{position:absolute; inset:0; overflow:hidden}
+  .canvas{
+    position:absolute; left:50%; top:50%;
+    transform:translate(-50%,-50%) scale(1);
+    will-change:transform; cursor:grab;
+  }
+  .canvas.dragging{cursor:grabbing}
+  .canvas img{display:block; min-width:105%; min-height:105%;
+    filter:contrast(1.02) saturate(.98) brightness(.92);
+    pointer-events:none; user-select:none}
+  .hintReset{
+    position:absolute; right:14px; top:14px; z-index:3;
+    background:#0f0f10bb; border:1px solid #ffffff2e; color:#fff;
+    padding:6px 10px; font-size:12px; border-radius:10px; backdrop-filter:blur(4px)
+  }
+  .hero::after{content:''; position:absolute; inset:0; pointer-events:none; background:radial-gradient(80% 80% at 50% 50%, transparent 60%, rgba(0,0,0,.55) 100%)}
+  .caption{position:absolute; left:20px; bottom:16px; background:#0b0b0bbb; border:1px solid #ffffff2c; padding:8px 10px; font-size:12px; backdrop-filter:blur(2px)}
+  .grain{position:absolute; inset:0; pointer-events:none; opacity:.12; mix-blend-mode:overlay;
+         background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity=".55"/></svg>');
+         background-size:160px 160px; animation:gr 9s steps(10) infinite}
+  @keyframes gr{0%{transform:translate(0,0)}25%{transform:translate(-2%,1%)}50%{transform:translate(1%,-1%)}75%{transform:translate(-1%,2%)}100%{transform:translate(0,0)}}
+
+  /* LOAD MENU 오버레이 */
+  .load { position:fixed; inset:0; background:#000; color:#fff; display:none;
+    z-index:1200; place-items:center; text-align:center; }
+  .load.show { display:grid; animation:fadeIn .32s ease both; }
+  @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+  .load-inner{ width:min(720px,90vw); }
+  .load-title{ font-size:clamp(32px,6vw,56px); letter-spacing:.18em;
+    text-shadow:0 0 16px #ffffff22, 0 0 2px #fff; margin:0 0 16px; }
+  .caret{ display:inline-block; width:.6ch; margin-left:.2ch; background:#fff; animation:blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity:0 } }
+  .load-sub{ color:#cfcfcf; opacity:.9; margin:0 0 26px; font-size:14px; letter-spacing:.08em }
+  .bar{ height:8px; background:#171717; border:1px solid #2a2a2a; position:relative; overflow:hidden }
+  .bar>span{ position:absolute; inset:0 auto 0 0; width:0%; background:linear-gradient(90deg,#fff,#999); box-shadow:0 0 10px #fff5 }
+  .scan{position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(to bottom, rgba(255,255,255,.04) 0 2px, transparent 2px 4px); mix-blend-mode:overlay; opacity:.1}
+
+  /* 스크롤바 숨김 */
+  html, body, .left, .right { scrollbar-width:none; }
+  html::-webkit-scrollbar, body::-webkit-scrollbar, .left::-webkit-scrollbar, .right::-webkit-scrollbar{ width:0; height:0; background:transparent; }
+
+  @media (max-width:900px){
+    .divider{display:none}
+    .stage{flex-direction:column}
+    .left,.right{width:100%; height:50%}
+    body{overflow:auto}
+    .back{left:10px; top:10px}
+  }
+</style>
+</head>
+<body>
+
+<a class="back" href="메인화면/index.html" id="goHome" aria-label="메인화면으로">
+  ← 메인으로 <kbd>Esc</kbd>
+</a>
+
+<script>
+// (선택) 뒤로가기 히스토리가 없을 때만 메인으로 가게 하고 싶다면
+const MAIN_URL = '메인화면/index.html';
+document.getElementById('goHome').addEventListener('click', (e)=>{
+  e.preventDefault();
+  if (document.referrer && new URL(document.referrer).origin === location.origin) {
+    history.back();
+  } else {
+    location.href = MAIN_URL;
+  }
+});
+</script>
+
+
+<div class="stage" id="stage">
+  <!-- LEFT : 텍스트 -->
+  <section class="left" id="left">
+    <div class="badge">CHAPTER 1</div>
+    <h1>기억을 깨우는 소리</h1>
+    <p class="lead">키보드 위로 쏟아지는 램프빛. 스테판의 눈동자에 커서가 박동한다.</p>
+    <div class="meta"><span>분기: A1 · 00:00–03:12</span><span>저장됨: 자동</span></div>
+    <hr/>
+    <div class="content" id="chapterText">
+      <p>알람이 세 번 울리고 멎었다.</p>
+      <p>스테판 버틀러(19)는 한 손으로 이불을 걷어내며 몸을 일으켰다. 방은 작고, 젊은 날의 열정이 흩어진 풍경이었다—뒤엉킨 전선, 모서리가 닳은 카세트테이프, 잡지 속에 끼워 둔 플로피 몇 장, 책상 위엔 ZX 스펙트럼. 그리고 낡은 게임북 한 권. 표지에 눌린 활자: 〈밴더스내치〉. 저자: 제롬 F. 데이비스.</p>
+      <p>스테판은 책등을 엄지로 훑었다. 종이의 마찰음이 작게, 그러나 또렷하게 울렸다. 그 소리는 늘 그랬듯 그의 하루를 깨웠다. 그는 가끔 생각했다. 왜 하필 소리일까? 화면보다 느리고, 글자보다 먼저 오는 것. 아마도 그의 기억은 언제나 소리로 시작했는지도 모른다.</p>
+      <p>창문을 조금 더 열자 차가운 공기가 들어왔다. 어머니의 발소리가 복도에서 멈춘다.</p>
+      <p>“밥 식기 전에 내려오렴.”</p>
+      <p>스테판은 대답 대신 손가락 두 개로 전원 스위치를 밀었다. 스펙트럼이 숨을 들이마시듯 <em>윙—</em> 하고 깨어난다. 화면에 점들이 모여 첫 문장을 만든다.</p>
+      <p><strong>LOAD MENU</strong></p>
+      <p class="muted">계속하려면 <kbd>Space</kbd> 또는 왼쪽 영역을 클릭하세요.</p>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <div class="divider" id="divider"><div class="line"></div><div class="nub"></div></div>
+
+  <!-- RIGHT : 인터랙티브 뷰어 -->
+  <section class="right" id="right" aria-label="장면 이미지">
+    <div class="hero" id="hero">
+      <button class="hintReset" id="resetBtn" title="더블클릭(탭 두 번)으로 리셋">Reset</button>
+      <div class="canvas" id="canvas">
+        <img src="책상이미지.jpg" alt="장면 이미지" id="heroImg"/>
+      </div>
+      <div class="grain"></div>
+      <div class="caption">스테판의 책상 — 03:12 AM</div>
+    </div>
+  </section>
+</div>
+
+<!-- LOAD MENU OVERLAY -->
+<section class="load" id="loadOverlay" aria-hidden="true">
+  <div class="scan"></div>
+  <div class="load-inner">
+    <h2 class="load-title"><span id="typeTarget"></span><span class="caret">&nbsp;</span></h2>
+    <p class="load-sub">Initializing...</p>
+    <div class="bar" aria-label="loading"><span id="barFill"></span></div>
+  </div>
+</section>
+<script>
+/* ===== LOAD MENU overlay + 다음 장면 자동 출력 + Choice 페이지 이동 ===== */
+(() => {
+  const overlay    = document.getElementById('loadOverlay');
+  const typeTarget = document.getElementById('typeTarget');
+  const barFill    = document.getElementById('barFill');
+  const contentBox = document.getElementById('chapterText');
+  const leftArea   = document.getElementById('left');
+
+  let loadShown = false;     // LOAD MENU 오버레이는 1회만
+  let loading   = false;
+  let sceneFinished = false; // 다음 장면 텍스트가 모두 출력됐는가
+
+  // 현재 본문에 'LOAD MENU'가 포함되어 있을 때만 오버레이 허용
+  const canShowLoad = () => contentBox.textContent.includes('LOAD MENU');
+
+  function showLoadThen(nextTexts){
+    if (loading || loadShown) return;
+    loading = true; loadShown = true;
+
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden','false');
+    typeTarget.textContent = '';
+    barFill.style.width = '0%';
+
+    const word = 'LOAD MENU';
+    let i = 0;
+    const tw = setInterval(() => {
+      typeTarget.textContent = word.slice(0, ++i);
+      if (i >= word.length) {
+        clearInterval(tw);
+        requestAnimationFrame(() => startProgress(nextTexts));
+      }
+    }, 60);
+  }
+
+  function startProgress(nextTexts){
+    let p = 0;
+    const tick = setInterval(() => {
+      p += Math.max(1, (100 - p) * 0.08);
+      if (p >= 100) p = 100;
+      barFill.style.width = p + '%';
+      if (p === 100) {
+        clearInterval(tick);
+        setTimeout(() => {
+          overlay.classList.remove('show');
+          overlay.setAttribute('aria-hidden','true');
+          loading = false;
+          renderNextScene(nextTexts);
+        }, 250);
+      }
+    }, 60);
+  }
+
+  // 다음 장면: 한 줄씩 페이드인. 모두 끝나면 클릭 유도 문구 추가
+  function renderNextScene(lines){
+    contentBox.innerHTML = '';
+    sceneFinished = false;
+
+    let idx = 0;
+    (function add(){
+      if(idx >= lines.length){
+        sceneFinished = true;
+        const hint = document.createElement('p');
+        hint.className = 'muted';
+        hint.textContent = '· 클릭(또는 Space)하면 선택 화면으로 이동합니다 ·';
+        contentBox.appendChild(hint);
+        return;
+      }
+      const p = document.createElement('p');
+      p.style.opacity = 0;
+      p.textContent = lines[idx++];
+      contentBox.appendChild(p);
+      requestAnimationFrame(()=> { p.style.transition='opacity .5s ease'; p.style.opacity=1; });
+      setTimeout(add, 1100);
+    })();
+  }
+
+  // ✅ Choice 페이지로 이동
+  function goChoicePage(){
+    // Start.html과 같은 폴더에 choice.html이 있다고 가정
+    location.href = 'choice.html';
+  }
+
+  // 다음 장면 텍스트들
+  const NEXT_LINES = [
+    "화면 아래 커서가 깜박인다. 그 깜빡임이 마치 시계초침 같다. 결정하라고, 아니면 네가 결정하지 않아도 누가 대신 할 거라고.",
+    "책상 모서리에는 두 개의 시리얼 박스가 쓰러져 있었다. 언제부터인지, 그는 그 둘을 짝으로 취급했다.",
+    "슈가 퍼프와 프로스티. 달콤함의 종류는 다르지만, 결국 달콤하다는 사실은 같다.",
+    "그는 숟가락을 들다가 멈췄다. 오늘의 달콤함은 어느 쪽이지?",
+    "그 순간 전화벨이 울렸다. 수화기 너머, 익숙한 목소리.",
+    "“일어났냐, 천재?”",
+    "콜린 리트먼. 복도 끝 같은 시선과, 엉뚱한 확신을 가진 친구.",
+    "“오늘 터커소프트에서 데모 본다고 했지? 네 아이디어, 네 손, 네 책임. 그러니까… 오늘만큼은 너도 스스로를 믿어라.”",
+    "수화기를 내려놓으며 스테판은 생각했다. 믿음은 선택의 다른 이름일까? 아니면 선택이 끝난 뒤 붙이는 라벨일까?",
+    "식탁에는 토스트와 식어가는 차. 어머니는 조심스레 물었다. “그 회사… 정말 괜찮은 곳이니?”",
+    "스테판은 고개를 끄덕였다. 모한 터커가 운영하는, 젊은 개발자들이 모인 곳.",
+    "어머니의 눈동자는 오래된 필름처럼 흔들렸다. 그는 그 이유를 안다 — 아버지의 빈자리.",
+    "“너라면 할 수 있을 거야.” 말은 응원이었지만 끝이 살짝 떨렸다.",
+    "스테판은 다짐처럼 웃으며 집을 나섰다." // ← 이 줄까지 출력 후 클릭 시 choice.html 이동
+  ];
+
+  // 트리거: 왼쪽 클릭 / Space
+  leftArea.addEventListener('click', () => {
+    if (canShowLoad()) showLoadThen(NEXT_LINES);
+    else if (sceneFinished) goChoicePage();
+  });
+
+  window.addEventListener('keydown', (e)=>{
+    const tag=(e.target.tagName||'').toLowerCase();
+    const typing=(tag==='input'||tag==='textarea'||e.target.isContentEditable);
+    if(!typing && e.code==='Space'){
+      e.preventDefault();
+      if (canShowLoad()) showLoadThen(NEXT_LINES);
+      else if (sceneFinished) goChoicePage();
+    }
+  });
+})();
+</script>
+
+<script>
+/* ===== Back (Esc/Backspace) ===== */
+(() => {
+  const MAIN_URL='index.html';
+  function goHome(){
+    if(history.length>1 && document.referrer && new URL(document.referrer).origin===location.origin){
+      history.back();
+    } else { location.href=MAIN_URL; }
+  }
+  document.getElementById('goHome').addEventListener('click',e=>{e.preventDefault();goHome();});
+  window.addEventListener('keydown',e=>{
+    const tag=(e.target.tagName||'').toLowerCase();
+    const typing=(tag==='input'||tag==='textarea'||e.target.isContentEditable);
+    if(!typing && (e.key==='Escape'||e.key==='Backspace')){ e.preventDefault(); goHome(); }
+  });
+})();
+
+/* ===== Split Divider (single init, no re-declare) ===== */
+(() => {
+  const stage    = document.getElementById('stage');
+  const leftCol  = document.getElementById('left');
+  const rightCol = document.getElementById('right');
+  const divider  = document.getElementById('divider');
+  if (!stage || !leftCol || !rightCol || !divider) return;
+  if (divider.dataset.init === '1') return;
+  divider.dataset.init = '1';
+
+  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+
+  function setSplitByClientX(cx){
+    const w   = stage.clientWidth;
+    const pct = clamp(cx / w, 0.30, 0.80) * 100;
+    leftCol.style.width  = pct + '%';
+    rightCol.style.width = (100 - pct) + '%';
+    divider.style.left   = pct + '%';
+  }
+
+  let draggingSplit = false;
+  function start(x){ draggingSplit = true;  document.body.classList.add('drag-split'); setSplitByClientX(x); }
+  function move(x){ if (draggingSplit) setSplitByClientX(x); }
+  function end(){  draggingSplit = false; document.body.classList.remove('drag-split'); }
+
+  divider.addEventListener('mousedown', e => start(e.clientX));
+  window .addEventListener('mousemove', e => move(e.clientX));
+  window .addEventListener('mouseup',   end);
+
+  divider.addEventListener('touchstart', e => { const t=e.touches[0]; start(t.clientX); }, {passive:true});
+  window .addEventListener('touchmove',  e => { if(!draggingSplit) return; const t=e.touches[0]; move(t.clientX); }, {passive:true});
+  window .addEventListener('touchend',   end);
+
+  setSplitByClientX(stage.clientWidth * 0.58);
+})();
+
+/* ===== Right viewer: zoom / pan ===== */
+(() => {
+  const canvas = document.getElementById('canvas');
+  const hero   = document.getElementById('hero');
+  const resetBtn = document.getElementById('resetBtn');
+  if(!canvas || !hero) return;
+
+  const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
+  let scale=1, minScale=1, maxScale=3;
+  let tx=0, ty=0; let isPanning=false, sx=0, sy=0;
+
+  const apply=()=> canvas.style.transform=`translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(${scale})`;
+  const reset=()=>{ scale=1; tx=0; ty=0; apply(); };
+  resetBtn.onclick=reset; canvas.ondblclick=reset; hero.addEventListener('dblclick', reset);
+
+  function limitPan(){
+    const rect=hero.getBoundingClientRect();
+    const maxX=(rect.width*(scale-1))*0.6, maxY=(rect.height*(scale-1))*0.6;
+    tx=clamp(tx,-maxX,maxX); ty=clamp(ty,-maxY,maxY);
+  }
+
+  hero.addEventListener('wheel',(e)=>{
+    e.preventDefault();
+    const rect=hero.getBoundingClientRect();
+    const mx=e.clientX-rect.left-rect.width/2;
+    const my=e.clientY-rect.top-rect.height/2;
+    const old=scale, factor=Math.exp(-e.deltaY*0.0015);
+    scale=clamp(old*factor,minScale,maxScale);
+    const k=(scale/old-1); tx-=mx*k; ty-=my*k;
+    limitPan(); apply();
+  },{passive:false});
+
+  hero.addEventListener('mousedown',(e)=>{ if(e.button!==0) return; isPanning=true; canvas.classList.add('dragging'); sx=e.clientX; sy=e.clientY; });
+  window.addEventListener('mousemove',(e)=>{ if(!isPanning) return; tx+=(e.clientX-sx); ty+=(e.clientY-sy); sx=e.clientX; sy=e.clientY; limitPan(); apply(); });
+  window.addEventListener('mouseup',()=>{ isPanning=false; canvas.classList.remove('dragging'); });
+
+  // touch
+  let tStartDist=0, tStartScale=1, tCx=0, tCy=0;
+  hero.addEventListener('touchstart',(e)=>{
+    if(e.touches.length===1){ isPanning=true; canvas.classList.add('dragging'); sx=e.touches[0].clientX; sy=e.touches[0].clientY; }
+    else if(e.touches.length===2){ isPanning=false; canvas.classList.remove('dragging');
+      const [a,b]=e.touches; tStartDist=Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY); tStartScale=scale;
+      const rect=hero.getBoundingClientRect(); tCx=((a.clientX+b.clientX)/2)-rect.left-rect.width/2; tCy=((a.clientY+b.clientY)/2)-rect.top-rect.height/2;
+    }
+  },{passive:false});
+  hero.addEventListener('touchmove',(e)=>{
+    if(e.touches.length===1 && isPanning){
+      tx+=(e.touches[0].clientX-sx); ty+=(e.touches[0].clientY-sy);
+      sx=e.touches[0].clientX; sy=e.touches[0].clientY; limitPan(); apply();
+    }else if(e.touches.length===2){
+      e.preventDefault(); const [a,b]=e.touches; const dist=Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY);
+      const old=scale; scale=clamp(tStartScale*(dist/tStartDist),minScale,maxScale);
+      const k=(scale/old-1); tx-=tCx*k; ty-=tCy*k; limitPan(); apply();
+    }
+  },{passive:false});
+  window.addEventListener('touchend',()=>{ isPanning=false; canvas.classList.remove('dragging'); });
+})();
+
+/* ===== LOAD MENU overlay + 다음 장면 자동 출력 ===== */
+(() => {
+  const overlay    = document.getElementById('loadOverlay');
+  const typeTarget = document.getElementById('typeTarget');
+  const barFill    = document.getElementById('barFill');
+  const contentBox = document.getElementById('chapterText');
+  const leftArea   = document.getElementById('left');
+
+  let loadShown = false;   // overlay 1회만
+  let loading   = false;
+
+  // “LOAD MENU”가 보일 때 클릭/Space로 오버레이 호출
+  function canShowLoad(){
+    return contentBox.textContent.includes('LOAD MENU');
+  }
+
+  function showLoadThen(nextTexts){
+    if (loading || loadShown === true) return;
+    loading = true; loadShown = true;
+
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden','false');
+    typeTarget.textContent = '';
+    barFill.style.width = '0%';
+
+    const word = 'LOAD MENU';
+    let i = 0;
+    const tw = setInterval(() => {
+      typeTarget.textContent = word.slice(0, ++i);
+      if (i >= word.length) {
+        clearInterval(tw);
+        requestAnimationFrame(() => startProgress(nextTexts));
+      }
+    }, 60);
+  }
+
+  function startProgress(nextTexts){
+    let p = 0;
+    const tick = setInterval(() => {
+      p += Math.max(1, (100 - p) * 0.08);
+      if (p >= 100) p = 100;
+      barFill.style.width = p + '%';
+      if (p === 100) {
+        clearInterval(tick);
+        setTimeout(() => {
+          overlay.classList.remove('show');
+          overlay.setAttribute('aria-hidden','true');
+          loading = false;
+          renderNextScene(nextTexts);
+        }, 250);
+      }
+    }, 60);
+  }
+
+  // 다음 장면 자동 한 줄씩 페이드인(이전 장면은 지움)
+  function renderNextScene(lines){
+    contentBox.innerHTML = '';
+    let idx = 0;
+    const addLine = () => {
+      if(idx >= lines.length) return;
+      const p = document.createElement('p');
+      p.style.opacity = 0;
+      p.textContent = lines[idx++];
+      contentBox.appendChild(p);
+      requestAnimationFrame(()=> {
+        p.style.transition = 'opacity .5s ease';
+        p.style.opacity = 1;
+      });
+      setTimeout(addLine, 1100); // 다음 줄
+    };
+    addLine();
+  }
+
+  // 트리거
+  leftArea.addEventListener('click', () => { if(canShowLoad()) showLoadThen(NEXT_LINES); });
+  window.addEventListener('keydown', (e)=>{
+    const tag=(e.target.tagName||'').toLowerCase();
+    const typing=(tag==='input'||tag==='textarea'||e.target.isContentEditable);
+    if(!typing && e.code==='Space'){ e.preventDefault(); if(canShowLoad()) showLoadThen(NEXT_LINES); }
+  });
+})();
+
+function route(which){
+  location.href = `Start.html?choice=${which}`; // 'A' 또는 'B'
+}
+const params = new URLSearchParams(location.search);
+const choice = params.get('choice'); // 'A' | 'B' | null
+// if (choice === 'A') { … } else if (choice === 'B') { … }
+
+</script>
+</body>
+</html>

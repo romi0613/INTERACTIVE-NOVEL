@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>엔딩 모음집 — BANDERSNATCH</title>
+
+<!-- 폰트: 제목용 픽셀 / 본문용 Pretendard -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css"/>
+
+<style>
+  :root{
+    --bg:#050505;
+    --bg-grad-1:#11060a;
+    --bg-grad-2:#3b1012;
+
+    --ink:#f8f4ee;
+    --muted:#b4aaa0;
+
+    --accent:#ff4b4b;      /* 빨강 포인트 */
+    --accent-soft:#ffb36b; /* 오렌지 포인트 */
+    --accent-yellow:#ffd75e;
+
+    --chip-bg:#151013;
+    --card-bg:#120d10;
+    --stroke:#ffffff26;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    color:var(--ink);
+    font-family:'Pretendard Variable',system-ui,-apple-system,BlinkMacSystemFont;
+    background:
+      radial-gradient(circle at 0 0, #3b1c22 0, var(--bg) 55%),
+      radial-gradient(circle at 110% 120%, var(--bg-grad-2) 0, var(--bg) 55%);
+  }
+
+  /* ===== 헤더 ===== */
+  header{
+    padding:24px 32px 8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+  }
+
+  .title-wrap{
+    text-align:center;
+  }
+
+  .title-main{
+    font-family:'Press Start 2P','Share Tech Mono',monospace;
+    font-size:clamp(14px,2.1vw,20px);
+    letter-spacing:.25em;
+    text-transform:uppercase;
+    color:var(--accent-yellow);
+    text-align:center;
+    text-shadow:
+      0 0 6px rgba(255,215,94,.9),
+      0 0 18px rgba(255,120,80,.7);
+  }
+  .title-sub{
+    margin-top:8px;
+    font-size:.9rem;
+    color:var(--muted);
+    letter-spacing:.16em;
+    text-align:center;
+    text-transform:uppercase;
+  }
+
+  .back-btn{
+    position:absolute;
+    right:32px;
+    top:50%;
+    transform:translateY(-50%);
+    background:none;
+    border:1px solid var(--accent-soft);
+    color:var(--accent-soft);
+    font-size:.78rem;
+    padding:6px 12px;
+    border-radius:999px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .back-btn:hover{
+    background:var(--accent-soft);
+    color:#200c0c;
+  }
+
+  /* reset / unlock 버튼 */
+  .reset-btn{
+    position:absolute;
+    left:24px;
+    top:18px;
+    padding:4px 14px;
+    border-radius:999px;
+    border:1px solid #ffffff33;
+    background:transparent;
+    color:#f5d6b7;
+    font-size:10px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+  .reset-btn.unlock-btn{
+    left:160px;
+  }
+  .reset-btn:hover{
+    border-color:#ffffff66;
+    color:#fde3c7;
+  }
+
+  /* ===== 상단 상태 바 ===== */
+  .status-bar{
+    max-width:1080px;
+    margin:0 auto 20px;
+    padding:0 28px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:.8rem;
+    color:var(--muted);
+  }
+
+  .status-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .status-dot{
+    width:8px;height:8px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%,#fff 0,var(--accent-soft) 40%,var(--accent) 100%);
+    box-shadow:0 0 12px rgba(255,122,90,.9);
+  }
+  #endingProgress strong{
+    color:var(--accent-soft);
+  }
+
+  .status-right span+span{
+    margin-left:14px;
+  }
+
+  /* ===== 메인 ===== */
+  main{
+    max-width:1080px;
+    margin:0 auto 48px;
+    padding:14px 28px 40px;
+    position:relative;
+  }
+
+  .ending-list{
+    position:relative;
+    z-index:1;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+
+  /* 세로 라인 */
+  .timeline{
+    position:absolute;
+    left:80px;
+    top:0;
+    bottom:0;
+    border-left:1px dashed rgba(255,255,255,.12);
+    pointer-events:none;
+  }
+
+  /* ===== 엔딩 라인 ===== */
+  .ending-row{
+    display:flex;
+    align-items:flex-start;
+    gap:20px;
+    position:relative;
+  }
+
+  /* 왼쪽 칩 */
+  .ending-chip{
+    flex:0 0 120px;
+    height:64px;
+    border-radius:14px;
+    padding:10px 12px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    background:linear-gradient(135deg,#241318,var(--chip-bg));
+    border:1px solid rgba(255,255,255,.14);
+    position:relative;
+  }
+  .ending-chip::after{
+    content:"";
+    position:absolute;
+    right:-18px;
+    top:50%;
+    width:18px;
+    height:1px;
+    background:linear-gradient(90deg,rgba(255,255,255,0) 0,rgba(255,255,255,.6) 50%,rgba(255,255,255,0) 100%);
+  }
+  .chip-label{
+    font-size:.72rem;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .chip-code{
+    margin-top:4px;
+    font-size:1rem;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:#f5f0e8;
+  }
+
+  .ending-row.unlocked .ending-chip{
+    border-color:rgba(255,126,93,.9);
+    box-shadow:0 0 18px rgba(255,126,93,.45);
+  }
+  .ending-row.unlocked .chip-code{
+    color:var(--accent-soft);
+  }
+  .ending-row.locked .ending-chip{
+    border-color:rgba(255,255,255,.08);
+    color:#726a62;
+  }
+
+  /* 오른쪽 카드 */
+  .ending-card{
+    flex:1;
+    border-radius:18px;
+    padding:12px 16px 14px;
+    border:1px solid rgba(255,255,255,.18);
+    background:
+      radial-gradient(circle at 0 0,rgba(255,255,255,.08) 0,transparent 45%),
+      linear-gradient(135deg,rgba(15,8,12,.98),rgba(9,5,8,.98));
+    box-shadow:0 14px 36px rgba(0,0,0,.85);
+    transition:border-color .2s, box-shadow .2s, transform .18s;
+  }
+
+  .ending-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:2px 10px 3px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.2);
+    font-size:.72rem;
+    color:#f3ece3;
+    background:rgba(0,0,0,.25);
+    margin-bottom:6px;
+  }
+  .ending-tag span:first-child{
+    font-weight:600;
+  }
+  .ending-tag strong{
+    color:var(--accent);
+    font-weight:700;
+  }
+
+  .ending-title{
+    margin:0 0 4px;
+    font-size:1rem;
+    font-weight:700;
+  }
+  .ending-desc{
+    margin:0;
+    font-size:.88rem;
+    color:var(--muted);
+    line-height:1.7;
+  }
+
+  /* 엔딩 타입 태그 */
+  .ending-kind{
+    margin-top:6px;
+    display:inline-flex;
+    padding:2px 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.24);
+    font-size:.7rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:#f5e6d0;
+    background:rgba(0,0,0,.35);
+    opacity:.9;
+  }
+
+  /* 선택 흐름 */
+  .ending-path{
+    margin:6px 0 0;
+    font-size:.78rem;
+    color:#998f86;
+  }
+  .ending-row.locked .ending-path{
+    color:#6b6258;
+    letter-spacing:.04em;
+  }
+
+  /* 잠긴 엔딩 힌트 */
+  .ending-hint{
+    margin-top:4px;
+    font-size:.75rem;
+    color:#7f756b;
+    font-style:italic;
+  }
+
+  .ending-row.unlocked .ending-card{
+    border-color:rgba(255,179,107,.7);
+    box-shadow:
+      0 18px 40px rgba(0,0,0,.95),
+      0 0 26px rgba(255,96,80,.38);
+  }
+  .ending-row.unlocked .ending-title{
+    color:#fff8ee;
+  }
+
+  /* 잠금 상태 */
+  .ending-row.locked .ending-card{
+    border-style:dashed;
+    border-color:rgba(255,255,255,.16);
+    background:linear-gradient(135deg,#120a0d,#070506);
+    color:#857b71;
+  }
+  .ending-row.locked .ending-title{
+    letter-spacing:.24em;
+  }
+  .ending-row.locked .ending-desc{
+    font-style:italic;
+    color:#6b6258;
+  }
+
+  /* ✅ 클릭 가능한(해금된 + route 있는) 엔딩 호버 효과 */
+  .ending-row.clickable{
+    cursor:pointer;
+  }
+  .ending-row.clickable:hover .ending-card{
+    border-color:var(--accent-yellow);
+    box-shadow:
+      0 20px 46px rgba(0,0,0,.98),
+      0 0 28px rgba(255,215,94,.45);
+    transform:translateY(-2px);
+  }
+
+  /* 반응형 */
+  @media (max-width:720px){
+    header{padding:18px 16px 4px;}
+    .back-btn,.reset-btn{display:none;}
+    .status-bar{padding:0 16px;}
+    main{padding:10px 16px 32px;}
+    .timeline{left:64px;}
+    .ending-row{gap:12px;}
+    .ending-chip{flex:0 0 96px;}
+  }
+</style>
+</head>
+
+<body>
+  <header>
+    <!-- 테스트용 리셋 버튼 -->
+    <button class="reset-btn" onclick="resetEndings()">reset endings</button>
+    <!-- 모든 엔딩 강제 해금 버튼 -->
+    <button class="reset-btn unlock-btn" onclick="unlockAllEndings()">unlock all</button>
+  
+    <div class="title-wrap">
+      <div class="title-main">BANDERSNATCH</div>
+      <div class="title-sub">ENDING ARCHIVE / 엔딩 모음집</div>
+    </div>
+
+    <button class="back-btn" onclick="location.href='index.html'">
+      ← 뒤로가기
+    </button>
+  </header>
+
+  <section class="status-bar">
+    <div class="status-left">
+      <span class="status-dot"></span>
+      <span id="endingProgress">UNLOCKED 0/0</span>
+    </div>
+    <div class="status-right">
+      <span>YEAR: 1984</span>
+      <span>MEDIUM: INTERACTIVE</span>
+    </div>
+  </section>
+
+  <main>
+    <div class="timeline"></div>
+    <div class="ending-list" id="endingList">
+      <!-- JS로 엔딩 줄 생성 -->
+    </div>
+  </main>
+
+<script>
+/* ===== 엔딩 메타데이터 ===== */
+const ENDINGS = [
+  {
+    id:'ENDING_A',
+    code:'A',
+    title:'기억의 조각 완성',
+    desc:'도살자 사건의 퍼즐을 모두 맞추고, 왜곡된 기억과 직접 마주하는 진실 엔딩.',
+    route:'ending_A.html',          // A 엔딩 디테일 페이지
+    kind:'truth',
+    path:['프롤로그', '사건에 개입하기', '증거를 숨기지 않는다', '기억을 직면한다'],
+    hint:'초반부터 사건에 적극적으로 개입하는 선택들이 중요합니다.'
+  },
+  {
+    id:'ENDING_B',
+    code:'B',
+    title:'끝나지 않는 밤',
+    desc:'현실과 게임, 환각의 경계가 완전히 무너져 루프 속을 영원히 맴도는 엔딩.',
+    route:'ending_B.html',
+    kind:'bad',
+    path:['프롤로그', '사건을 외면한다', '도피하는 선택 반복'],
+    hint:'처음 사건을 그냥 넘기고, 이후에도 회피 쪽 선택을 고르면 이 엔딩에 가까워집니다.'
+  },
+  {
+    id:'ENDING_C',
+    code:'C',
+    title:'마지막 선택',
+    desc:'누군가를 지키기 위해 자신을 희생하고, 게임은 미완성으로 남는 엔딩.',
+    route:'ending_C.html',
+    kind:'sac',
+    path:['프롤로그', '사건에 개입', '자신을 희생하는 선택'],
+    hint:'클라이맥스에서 “자신을 버리는 선택”을 고르는 것이 핵심입니다.'
+  },
+  {
+    id:'ENDING_D',
+    code:'D',
+    title:'조작자에게 인사하기',
+    desc:'이 세계가 인터랙티브 콘텐츠라는 사실을 깨닫고 “위에서 보는 존재”와 직접 대면하는 메타 엔딩.',
+    route:null,
+    kind:'meta',
+    path:['프롤로그', '이상한 메시지 수신', '현실을 의심하는 선택들'],
+    hint:'“이게 게임 같다”라는 뉘앙스의 선택들을 꾸준히 고르면 도달할 수 있습니다.'
+  }
+];
+
+/* localStorage 해금 여부 */
+function isUnlocked(id){
+  return localStorage.getItem('ending:' + id) === '1';
+}
+
+const listEl = document.getElementById('endingList');
+const progressEl = document.getElementById('endingProgress');
+
+function renderEndings(){
+  listEl.innerHTML = '';
+  let unlockedCount = 0;
+
+  ENDINGS.forEach((e, idx) => {
+    const unlocked = isUnlocked(e.id);
+    if(unlocked) unlockedCount++;
+
+    const row = document.createElement('article');
+    row.className = 'ending-row ' + (unlocked ? 'unlocked' : 'locked');
+    row.dataset.id = e.id;
+
+    const chip = document.createElement('div');
+    chip.className = 'ending-chip';
+    chip.innerHTML = `
+      <div class="chip-label">ENDING</div>
+      <div class="chip-code">${e.code}</div>
+    `;
+
+    const card = document.createElement('div');
+    card.className = 'ending-card';
+
+    const tag = document.createElement('div');
+    tag.className = 'ending-tag';
+    tag.innerHTML = `
+      <span>${String(idx+1).padStart(2,'0')}</span>
+      <span>STATUS: <strong>${unlocked ? 'UNLOCKED' : 'LOCKED'}</strong></span>
+    `;
+    card.appendChild(tag);
+
+    const title = document.createElement('h2');
+    title.className = 'ending-title';
+    title.textContent = unlocked ? e.title : '？？？';
+    card.appendChild(title);
+
+    const desc = document.createElement('p');
+    desc.className = 'ending-desc';
+    desc.textContent = unlocked
+      ? e.desc
+      : '아직 도달하지 못한 엔딩입니다. 다른 분기와 선택을 시도해보세요.';
+    card.appendChild(desc);
+
+    // 엔딩 타입 태그
+    if (e.kind){
+      const kind = document.createElement('div');
+      kind.className = 'ending-kind';
+      let label = '';
+      if(e.kind === 'truth') label = 'TRUTH / 진실 엔딩';
+      if(e.kind === 'bad')   label = 'BAD / 루프 엔딩';
+      if(e.kind === 'sac')   label = 'SACRIFICE / 희생 엔딩';
+      if(e.kind === 'meta')  label = 'META / 메타 엔딩';
+      kind.textContent = label;
+      card.appendChild(kind);
+    }
+
+    // 선택 흐름
+    if (e.path && e.path.length){
+      const path = document.createElement('p');
+      path.className = 'ending-path';
+      path.textContent = unlocked
+        ? '주요 선택 흐름: ' + e.path.join(' → ')
+        : '주요 선택 흐름: ??? → ??? → ???';
+      card.appendChild(path);
+    }
+
+    // 잠긴 엔딩 힌트
+    if (!unlocked && e.hint){
+      const hint = document.createElement('p');
+      hint.className = 'ending-hint';
+      hint.textContent = '힌트: ' + e.hint;
+      card.appendChild(hint);
+    }
+
+    row.appendChild(chip);
+    row.appendChild(card);
+
+    // 🔗 해금 + route 있으면 클릭 시 페이지 이동 + hover 효과
+    if (unlocked && e.route) {
+      row.classList.add('clickable');
+      row.onclick = () => {
+        location.href = e.route;
+      };
+    }
+
+    listEl.appendChild(row);
+  });
+
+  progressEl.innerHTML =
+    `UNLOCKED <strong>${unlockedCount}/${ENDINGS.length}</strong>`;
+}
+
+/* 전체 엔딩 리셋 */
+function resetEndings(){
+  ENDINGS.forEach(e => localStorage.removeItem('ending:' + e.id));
+  renderEndings();
+}
+
+/* 전체 엔딩 강제 해금 (과제 시연용) */
+function unlockAllEndings(){
+  ENDINGS.forEach(e => localStorage.setItem('ending:' + e.id, '1'));
+  renderEndings();
+}
+
+/* 초기 렌더 */
+document.addEventListener('DOMContentLoaded', renderEndings);
+</script>
+</body>
+</html>
