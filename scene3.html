@@ -143,7 +143,7 @@
 
     <p class="hint">
       화면을 클릭하거나 Space / Enter 키를 누르면<br>
-      해당 엔딩 페이지로 이동합니다.
+      초이스 4 페이지로 이동합니다.
     </p>
   </section>
 
@@ -157,24 +157,34 @@
 </div>
 
 <script>
-  // 최종 루트: AAA, AAB, ABA, ABB, BAA, BAB, BBA, BBB
+  // ===== 루트(path) 누적 =====
+  // - ?path= 가 있으면 그 값을 사용
+  // - 없으면 localStorage에 저장된 값을 사용(루트가 리셋되는 문제 방지)
+  const PATH_KEY = 'story_path';
   const params   = new URLSearchParams(location.search);
-  const fullPath = (params.get('path') || 'AAA').toUpperCase();
 
-  // 어떤 루트가 어떤 엔딩으로 가는지 매핑
-  const ENDING_ROUTE = {
-    'AAA': { file:'ending_A.html', key:'A' }, // 기억의 조각 완성
-    'AAB': { file:'ending_B.html', key:'B' }, // 끝나지 않는 밤
-    'ABA': { file:'ending_C.html', key:'C' },
-    'ABB': { file:'ending_B.html', key:'B' },
-    'BAA': { file:'ending_C.html', key:'C' },
-    'BAB': { file:'ending_B.html', key:'B' },
-    'BBA': { file:'ending_C.html', key:'C' },
-    'BBB': { file:'ending_B.html', key:'B' }
+  let fullPath = (params.get('path') || localStorage.getItem(PATH_KEY) || 'AAA').toUpperCase();
+  fullPath = fullPath.replace(/[^AB]/g,''); // A/B만 허용
+  if(!fullPath) fullPath = 'AAA';
+  // SCENE3은 "3번째 선택까지" 상태라 3글자로 고정
+  if(fullPath.length < 3) fullPath = fullPath.padEnd(3,'A');
+  if(fullPath.length > 3) fullPath = fullPath.slice(0,3);
+
+  localStorage.setItem(PATH_KEY, fullPath);
+
+  // ===== SCENE 3 분위기(텍스트) 선택용 키 =====
+  // (원래 엔딩 매핑을 '분위기 키'로만 재사용)
+  const ROUTE_KEY_MAP = {
+    'AAA':'A',
+    'AAB':'B',
+    'ABA':'C',
+    'ABB':'B',
+    'BAA':'C',
+    'BAB':'B',
+    'BBA':'C',
+    'BBB':'B'
   };
-
-  // 기본값: 맵에 없으면 B 엔딩으로
-  const route = ENDING_ROUTE[fullPath] || { file:'ending_B.html', key:'B' };
+  const routeKey = ROUTE_KEY_MAP[fullPath] || 'B';
 
   // 엔딩 분위기별 마지막 장면 텍스트
   const SCENE3 = {
@@ -225,25 +235,27 @@
     }
   };
 
-  const data = SCENE3[route.key] || SCENE3.B;
+  const data = SCENE3[routeKey] || SCENE3.B;
 
   // 텍스트 반영
   document.getElementById('badge').textContent  = data.badge;
   document.getElementById('title').textContent  = data.title;
   document.getElementById('lead').textContent   = data.lead;
   document.getElementById('metaBranch').textContent = '루트: ' + fullPath;
-  document.getElementById('metaEnding').textContent = '도달 예정 엔딩: ENDING ' + route.key;
+  document.getElementById('metaEnding').textContent = '다음: CHOICE 4';
   document.getElementById('caption').textContent    = data.caption;
 
   const contentEl = document.getElementById('content');
   contentEl.innerHTML = data.paras.map(p => `<p>${p}</p>`).join('');
 
-  // 엔딩 페이지로 이동
-  function goEnding(){
-    location.href = route.file + '?path=' + encodeURIComponent(fullPath);
+  // ===== CHOICE 4로 이동 =====
+  const CHOICE4_FILE = 'choice4.html'; // 파일명이 다르면 여기만 수정
+
+  function goChoice4(){
+    location.href = CHOICE4_FILE + '?path=' + encodeURIComponent(fullPath);
   }
 
-  document.getElementById('sceneRoot').addEventListener('click', goEnding);
+  document.getElementById('sceneRoot').addEventListener('click', goChoice4);
 
   window.addEventListener('keydown', (e)=>{
     const tag = (e.target.tagName||'').toLowerCase();
@@ -252,7 +264,7 @@
 
     if(e.key === ' ' || e.key === 'Enter'){
       e.preventDefault();
-      goEnding();
+      goChoice4();
     }
   });
 </script>

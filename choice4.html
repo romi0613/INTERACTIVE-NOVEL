@@ -260,18 +260,28 @@
   </main>
 
   <script>
-    // ===== 루트(path) 누적 =====
+    // ===== 루트(path) 누적(안 날아가게) =====
+    const PATH_KEY = 'story_path';
     const params = new URLSearchParams(location.search);
-    const basePath = (params.get('path') || '').trim(); // 예: "ABA" 같은 값
-    const safeBase = basePath || '---';
-    document.getElementById('routeText').textContent = '현재 루트 : ' + safeBase;
+
+    let basePath = (params.get('path') || localStorage.getItem(PATH_KEY) || 'AAA').toUpperCase();
+    basePath = basePath.replace(/[^AB]/g,'');
+    if(!basePath) basePath = 'AAA';
+
+    // CHOICE4는 "3번째 선택까지"를 기반으로 하니까 3글자 기준으로 표시/누적
+    if(basePath.length < 3) basePath = basePath.padEnd(3,'A');
+    if(basePath.length > 3) basePath = basePath.slice(0,3);
+
+    localStorage.setItem(PATH_KEY, basePath);
+
+    document.getElementById('routeText').textContent = '현재 루트 : ' + basePath;
 
     // 다음 파일(너 프로젝트 파일명에 맞춰서 여기만 바꾸면 됨)
     const NEXT_SCENE = 'scene4.html';
 
     function goNext(letter){
-      const prev = (basePath || '');
-      const nextPath = prev + (letter === 'B' ? 'B' : 'A'); // ✅ 누적
+      const nextPath = basePath + (letter === 'B' ? 'B' : 'A'); // ✅ 누적(4글자)
+      localStorage.setItem(PATH_KEY, nextPath);
       location.href = NEXT_SCENE + '?path=' + encodeURIComponent(nextPath);
     }
 
