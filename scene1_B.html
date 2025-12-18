@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>SCENE 1-B — 흘려보낸 밤</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css"/>
+
+<style>
+  :root{
+    --ink:#f5f0e6;
+    --ink-dim:#cfc5b8;
+    --bg:#050509;
+    --stroke:#ffffff22;
+    --accent:#ffe1a6;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:radial-gradient(circle at 0 0,#322027 0,#050509 42%,#020205 100%);
+    color:var(--ink);
+    font-family:'Pretendard Variable',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+  }
+
+  .stage{
+    height:100vh;
+    display:flex;
+  }
+
+  .left{
+    width:45%;
+    padding:6vh clamp(20px,4vw,40px);
+    border-right:1px solid var(--stroke);
+    background:linear-gradient(180deg,#0f1114,#070709);
+    overflow-y:hidden; /* 스크롤 없애고 페이지 넘김으로만 */
+  }
+
+  .right{
+    width:55%;
+    position:relative;
+    overflow:hidden;
+    background:#000;
+  }
+
+  .badge{
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    margin-bottom:6px;
+  }
+  h1{
+    margin:0 0 8px;
+    font-size:clamp(22px,3vw,30px);
+  }
+  .lead{
+    margin:0 0 16px;
+    font-size:14px;
+    color:var(--ink-dim);
+  }
+  .meta{
+    font-size:12px;
+    color:#b9b0a2;
+    margin-bottom:18px;
+  }
+  .meta span+span{margin-left:12px;}
+  hr{
+    border:none;
+    border-top:1px solid var(--stroke);
+    margin:12px 0 18px;
+  }
+
+  .content{
+    font-size:16px;
+    line-height:1.9;
+    min-height:40vh;
+  }
+  .content p{margin:0 0 1em;}
+
+  .page-info{
+    margin-top:6px;
+    font-size:12px;
+    color:var(--ink-dim);
+    opacity:.85;
+  }
+
+  .hint{
+    margin-top:6px;
+    font-size:12px;
+    color:var(--ink-dim);
+  }
+
+  /* 오른쪽 이미지 패널 */
+  .hero{
+    position:absolute; inset:0;
+  }
+  .hero-img{
+    position:absolute; inset:0;
+    background:url('선택1.png') center/cover no-repeat;
+    filter:brightness(.92) contrast(1.05);
+  }
+  .hero::after{
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(80% 80% at 50% 50%,transparent 55%,rgba(0,0,0,.7));
+  }
+  .caption{
+    position:absolute;
+    left:18px; bottom:16px;
+    padding:8px 10px;
+    border-radius:8px;
+    border:1px solid var(--stroke);
+    background:#090909c5;
+    font-size:12px;
+    color:#e7decf;
+    backdrop-filter:blur(3px);
+  }
+
+  @media (max-width:900px){
+    .stage{
+      flex-direction:column;
+      height:auto;
+    }
+    .left,.right{
+      width:100%;
+      height:50vh;
+    }
+    .left{
+      padding:18px 16px 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="sceneRoot">
+  <!-- LEFT: 텍스트 -->
+  <section class="left">
+    <div class="badge" id="badge">SCENE 1-B · 흘려보낸 밤</div>
+    <h1 id="title">넘겨버린 탭, 지워지지 않는 점 하나</h1>
+    <p class="lead" id="lead">
+      당신은 기사 제목을 지나쳤다. 하지만 화면 어딘가에는 여전히 읽지 않은 것이 남아 있다.
+    </p>
+
+    <div class="meta">
+      <span id="metaBranch">분기: B</span>
+      <span>시간: 00:03–00:06</span>
+    </div>
+
+    <hr/>
+
+    <div class="content" id="content"></div>
+
+    <p class="page-info" id="pageInfo">페이지 1 / 1</p>
+    <p class="hint">
+      화면을 클릭하거나 Space / Enter 키를 누르면<br>
+      다음 페이지로 넘어갑니다. 마지막 페이지에서 한 번 더 누르면<br>
+      CHOICE 2 화면으로 이동합니다.
+    </p>
+  </section>
+
+  <!-- RIGHT: 이미지 -->
+  <section class="right" aria-hidden="true">
+    <div class="hero">
+      <div class="hero-img"></div>
+      <div class="caption" id="caption">피드를 스크롤하는 손 — “읽지 않음(1)”</div>
+    </div>
+  </section>
+</div>
+
+<script>
+  // 이 파일은 B 루트 전용
+  const PATH = 'B';
+
+  // 본문 문단들
+  const PARAS = [
+    '손가락이 화면을 훑고 지나가자, 도살자 사건이라는 단어가 시야 밖으로 밀려난다. 피드는 다시 익숙한 것들로 채워진다. 짧은 밈 영상, 알고리즘이 골라 준 음악 클립, “지금 당장 봐야 할 다섯 가지” 같은 제목의 글들. 방금 전까지만 해도 시선을 붙잡았던 그 사건의 썸네일은, 아무 일도 아니었다는 듯 타임라인 아래로 가라앉는다.',
+    '당신은 일부러 아무렇지 않은 척 다음 카드로 넘어간다. 새로 올라온 팔로워의 스토리를 확인하고, 좋아요를 대충 누르고, 한참을 내려간 뒤에서야 잠깐 손을 멈춘다. 화면 맨 위, 알림 아이콘 옆에 작은 회색 점 하나가 여전히 남아 있다. ‘읽지 않음(1)’.',
+    '그 점을 없애려면, 언젠가 다시 돌아가서 그 기사를 눌러야 한다는 걸 안다. 그러나 지금은 아니다. 오늘은 피곤했고, 머릿속에는 이미 신경 써야 할 다른 것들이 너무 많다. 내일 있을 발표, 정리하지 못한 메모들, 읽다 만 소설책의 북마크. 당신은 그 작은 점 하나쯤은 대수롭지 않게 넘길 수 있다고 자신을 설득한다.',
+    '하지만 화면 밝기를 조금 낮추고 다시 피드를 훑어 내려가면서도, 방금 지나친 제목이 문장 일부만 잘린 상태로 자꾸 떠오른다. “…사건, 다시 떠오른 의혹들.” 그 뒤에 이어지는 단어들이 무엇이었는지 정확히 기억나지 않아서, 오히려 더 신경이 쓰인다. 기억나지 않는 부분이 하나 생겼다는 사실 자체가 머릿속에서 울린다.',
+    '당신은 뉴스 앱을 완전히 종료하지 않는다. 홈 화면으로 나갔다가도, 손가락이 습관처럼 다시 그 아이콘을 향해 움직인다. 그러다가 중간에 멈춰서, 다른 앱을 열어 버린다. 마치 스스로를 속이기라도 하듯, “지금은 그냥 잠깐 딴 생각이 필요할 뿐”이라고 합리화한다.',
+    '윈도우 상단에는 백그라운드에서 여전히 데이터가 로딩 중이라는 작은 표시가 깜빡인다. 어딘가에서는 누군가가 그 사건의 세부를 정리하고, 또 다른 누군가는 새로운 증언을 업로드하고 있을 것이다. 당신이 화면을 보지 않는 동안에도, 이야기는 계속 업데이트된다.',
+    '잠시 후, 피드에는 비슷한 사건을 묶어서 보여 주는 추천 카드가 슬며시 끼어든다. 썸네일 속 흐릿한 사진, “이야기의 또 다른 버전”이라는 자극적인 문구. 알고리즘은 당신이 방금 그 제목 앞에서 스크롤 속도를 살짝 늦췄다는 것만으로도 이미 관심을 감지했다.',
+    '당신은 그 카드를 일부러 보지 않은 척 빠르게 내려 보낸다. 하지만 스크롤이 끝에 다다를수록 피드의 내용은 점점 덜 중요해지고, 대신 방금 지나친 것들이 뒤에서 조용히 쌓인다. 읽지 않은 기사, 열지 않은 탭, 대답하지 않은 메시지들.',
+    '결국 당신은 휴대폰 화면을 뒤집어 책상 위에 내려놓는다. 불이 꺼진 화면 속에 희미하게 비친 자신의 얼굴이 잠깐 보였다가 사라진다. 눈을 감으면, 방금 스쳐 지나간 제목의 앞부분만 다시 떠오른다. “도살자 사건, 다시…” 그 다음 단어는 여전히 공백으로 남아 있다.',
+    '어쩌면 당신은 알고 있을지도 모른다. 지금 넘겨 버린 이 장면이, 언젠가 다른 선택지의 배경으로 다시 돌아올 거라는 걸. 오늘 읽지 않은 문장은, 다음 밤에 조금 다른 형태로 재생될 것이다. 그리고 그때도 역시, 선택지는 두 개뿐일 것이다. 열어 본다, 혹은 또 한 번 넘긴다.'
+  ];
+
+  const contentEl  = document.getElementById('content');
+  const pageInfoEl = document.getElementById('pageInfo');
+
+  // 3문단씩 페이지 나누기
+  const PAGE_SIZE = 3;
+  const pages = [];
+  for(let i=0;i<PARAS.length;i+=PAGE_SIZE){
+    pages.push(PARAS.slice(i, i+PAGE_SIZE));
+  }
+  let pageIndex = 0;
+
+  function renderPage(){
+    const pageParas = pages[pageIndex] || [];
+    contentEl.innerHTML = pageParas.map(p => `<p>${p}</p>`).join('');
+    pageInfoEl.textContent = `페이지 ${pageIndex+1} / ${pages.length}`;
+  }
+
+  renderPage();
+
+  const NEXT_URL = 'choice2.html';
+
+  function goNextScene(){
+    // B루트 유지하면서 Choice2로
+    location.href = NEXT_URL + '?path=' + encodeURIComponent(PATH);
+  }
+
+  function advance(){
+    if(pageIndex < pages.length - 1){
+      pageIndex++;
+      renderPage();
+    }else{
+      goNextScene();
+    }
+  }
+
+  document.getElementById('sceneRoot').addEventListener('click', advance);
+
+  window.addEventListener('keydown', (e)=>{
+    const tag = (e.target.tagName||'').toLowerCase();
+    const typing = (tag === 'input' || tag === 'textarea' || e.target.isContentEditable);
+    if(typing) return;
+
+    if(e.key === ' ' || e.key === 'Enter'){
+      e.preventDefault();
+      advance();
+    }
+  });
+</script>
+
+</body>
+</html>

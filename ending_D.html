@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ENDING D — 마지막 선택</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#050307;
+      --ink:#f5f0e6;
+      --muted:#b8a9a0;
+      --stroke:#ffffff22;
+
+      /* 공통 포인트(다른 엔딩들과 톤 통일) */
+      --accent:#ffb84d;
+      --accent-soft:#ffd8a0;
+      --accent-deep:#ff4d6d;
+
+      /* 메타 엔딩 느낌(보조 포인트) */
+      --meta:#7ce7ff;
+      --meta-soft:#b6f1ff;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at 70% 10%, rgba(255,120,120,.12) 0, transparent 45%),
+        radial-gradient(circle at 0% 0%, #4a1e28 0, var(--bg) 42%, #020103 100%);
+      color:var(--ink);
+      font-family:'Pretendard Variable',Pretendard,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      overflow:hidden; /* ✅ 페이지 전체 스크롤 제거 */
+    }
+
+    .page{
+      width:min(1040px, 96vw);
+      max-height:92vh;
+      border-radius:22px;
+      border:1px solid var(--stroke);
+      background:
+        radial-gradient(circle at 0% 0%, #3b1c24 0, #0a050d 45%, #050308 100%);
+      box-shadow:
+        0 24px 90px rgba(0,0,0,.9),
+        0 0 40px rgba(255,150,80,.12);
+      padding:22px clamp(18px,3.2vw,28px);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden; /* ✅ 내부 스크롤 제거(잘림 방지는 clamp로 처리) */
+    }
+
+    /* ===== 상단 헤더 ===== */
+    .page-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:18px;
+      margin-bottom:14px;
+    }
+    .brand-title{
+      font-family:'Share Tech Mono',monospace;
+      font-size:clamp(18px,2.6vw,24px);
+      letter-spacing:.48em;
+      text-transform:uppercase;
+      color:#ffe8b6;
+      text-shadow:
+        0 0 6px rgba(255,220,150,.85),
+        0 0 18px rgba(255,120,80,.55);
+      padding-left:.5em;
+      user-select:none;
+    }
+    .brand-sub{
+      margin-top:6px;
+      font-size:.75rem;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+    .meta-right{
+      text-align:right;
+      font-size:.75rem;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+    .meta-right .hl{
+      margin-top:6px;
+      color:var(--meta-soft);
+      text-shadow:0 0 16px rgba(124,231,255,.25);
+    }
+
+    /* ===== 본문 레이아웃 ===== */
+    .body-grid{
+      flex:1;
+      min-height:0;
+      display:grid;
+      grid-template-columns: minmax(0,2.1fr) minmax(0,1.5fr);
+      gap:16px;
+      border-radius:18px;
+      border:1px solid #ffffff1f;
+      background:radial-gradient(circle at 15% 0%, #2b2026 0, #120910 38%, #070509 100%);
+      padding:18px 18px 16px;
+      overflow:hidden; /* ✅ 스크롤바가 생기지 않게 */
+    }
+
+    /* 공통 텍스트 clamp (스크롤 대신 말줄임) */
+    .clamp{
+      display:-webkit-box;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .clamp-2{-webkit-line-clamp:2}
+    .clamp-3{-webkit-line-clamp:3}
+    .clamp-4{-webkit-line-clamp:4}
+    .clamp-5{-webkit-line-clamp:5}
+    .clamp-6{-webkit-line-clamp:6}
+
+    /* ===== 왼쪽 메인 ===== */
+    .left{
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .eyebrow{
+      font-size:.78rem;
+      letter-spacing:.28em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:2px;
+    }
+    h1{
+      margin:0;
+      font-size:1.52rem;
+      color:var(--meta-soft);
+      text-shadow:0 0 18px rgba(124,231,255,.16);
+    }
+    .status-line{
+      margin:4px 0 0;
+      font-size:.82rem;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+    .status-line span{
+      color:var(--accent-soft);
+      text-shadow:0 0 18px rgba(255,184,77,.12);
+    }
+
+    .summary{
+      border-radius:14px;
+      border:1px solid var(--stroke);
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.18));
+      padding:14px 14px 12px;
+      min-height:0;
+    }
+    .summary p{
+      margin:0 0 10px;
+      color:#e9ded6;
+      font-size:.93rem;
+      line-height:1.65;
+    }
+    .summary p:last-child{margin-bottom:0}
+    .summary strong{color:var(--accent-soft)}
+    .summary em{color:var(--meta-soft); font-style:normal}
+
+    .quote-block{
+      border-radius:14px;
+      border:1px solid #ffffff26;
+      background:rgba(0,0,0,.35);
+      padding:12px 14px;
+      font-family:'Share Tech Mono',monospace;
+      color:#fff2d3;
+      letter-spacing:.02em;
+      line-height:1.45;
+      box-shadow:0 0 0 1px rgba(255,184,77,.08) inset;
+    }
+
+    .route-box{
+      border-radius:14px;
+      border:1px solid #ffffff26;
+      background:rgba(0,0,0,.35);
+      padding:12px 14px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-height:0;
+    }
+    .route-box-title{
+      font-size:.76rem;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      color:var(--meta-soft);
+    }
+    .route-pills{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      max-height:52px; /* ✅ 너무 길어지면 잘림(스크롤 X) */
+      overflow:hidden;
+    }
+    .pill{
+      font-family:'Share Tech Mono',monospace;
+      font-size:.82rem;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid #ffffff24;
+      background:rgba(255,255,255,.06);
+      color:#f7f0e6;
+      line-height:1;
+    }
+    .pill.a{ box-shadow:0 0 0 1px rgba(255,184,77,.12) inset; }
+    .pill.b{ box-shadow:0 0 0 1px rgba(255,77,109,.10) inset; }
+
+    .route-desc{
+      margin:0;
+      font-size:.86rem;
+      color:#d6c9c0;
+      line-height:1.45;
+    }
+    .route-desc strong{color:var(--accent-soft);}
+    .clear-count{
+      margin:0;
+      font-size:.78rem;
+      color:var(--muted);
+      line-height:1.35;
+    }
+
+    /* ===== 오른쪽 사이드 ===== */
+    aside{
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .side-box{
+      border-radius:14px;
+      border:1px solid #ffffff26;
+      background:rgba(0,0,0,.35);
+      padding:12px 14px;
+      min-height:0;
+    }
+    .side-title{
+      font-size:.76rem;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      color:var(--meta-soft);
+      margin-bottom:8px;
+    }
+    .side-body{
+      font-size:.88rem;
+      line-height:1.55;
+      color:#e8ddd5;
+      min-height:0;
+    }
+    .side-body p{margin:0 0 8px}
+    .side-body p:last-child{margin-bottom:0}
+    .side-body strong{color:var(--accent-soft)}
+    .side-body code{
+      font-family:'Share Tech Mono',monospace;
+      background:rgba(255,255,255,.08);
+      border:1px solid #ffffff1f;
+      padding:1px 6px;
+      border-radius:8px;
+      color:#fff2d3;
+    }
+
+    .side-body ul{
+      margin:0;
+      padding-left:18px;
+    }
+    .side-body li{margin:5px 0}
+
+    /* ===== 하단 버튼 ===== */
+    .footer{
+      margin-top:12px;
+      padding-top:12px;
+      border-top:1px solid #ffffff18;
+    }
+    .btn-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid #ffffff22;
+      background:rgba(255,255,255,.06);
+      color:#f7f0e6;
+      text-decoration:none;
+      font-size:.92rem;
+      letter-spacing:.01em;
+      cursor:pointer;
+      user-select:none;
+      transition:transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .btn:hover{transform:translateY(-1px); background:rgba(255,255,255,.08); border-color:#ffffff35;}
+    .btn.primary{
+      background:rgba(255,184,77,.16);
+      border-color:rgba(255,184,77,.35);
+      box-shadow:0 0 22px rgba(255,184,77,.14);
+    }
+    .btn .icon{font-size:1.05rem}
+    .foot-note{
+      margin:10px 0 0;
+      font-size:.78rem;
+      color:var(--muted);
+      line-height:1.35;
+    }
+
+    /* ===== 작은 높이 대응(스크롤 대신 더 압축) ===== */
+    @media (max-height: 740px){
+      .body-grid{padding:14px; gap:12px;}
+      .summary{padding:12px}
+      .summary p{font-size:.9rem; line-height:1.55}
+      .route-pills{max-height:44px;}
+      .btn{padding:9px 12px}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header class="page-header">
+      <div>
+        <div class="brand-title">BANDERSNATCH</div>
+        <div class="brand-sub">ENDING ARCHIVE</div>
+      </div>
+      <div class="meta-right">
+        <div>INTERACTIVE NOVEL</div>
+        <div class="hl">ENDING D · META ROUTE</div>
+      </div>
+    </header>
+
+    <section class="body-grid">
+      <div class="left">
+        <div>
+          <div class="eyebrow">ENDING D</div>
+          <h1>마지막 선택</h1>
+          <p class="status-line">STATUS · UNLOCKED · ROUTE DEPTH : <span id="routeDepth">0</span></p>
+        </div>
+
+        <div class="summary">
+          <p class="lead clamp clamp-3">
+            당신은 결말을 보기 위해 달려온 게 아니라, 이 이야기의 <strong>구조</strong>를 보게 되었다.
+            선택지 너머에서 무언가가 당신을 계속 <em>측정</em>하고 있었다.
+          </p>
+          <p class="clamp clamp-4">
+            버튼을 누를수록 <code>path</code>는 길어지고, 선택은 “사건”이 아니라 <strong>기록</strong>처럼 보인다.
+            당신은 플레이어이면서, 동시에 시스템의 데이터다.
+          </p>
+          <p class="clamp clamp-4">
+            중요한 건 무엇을 골랐는지보다, 그 뒤에도 <strong>내가 선택하고 있다고 믿을 수 있는가</strong>이다.
+          </p>
+        </div>
+
+        <div class="quote-block clamp clamp-2" id="quoteLine">
+          이건 결말이 아니라, 디버그 화면이다. — “선택”의 뒤를 보았다.
+        </div>
+
+        <section class="route-box">
+          <div class="route-box-title">ROUTE LOG · 당신이 밟아온 선택들</div>
+          <div class="route-pills" id="routePills"></div>
+          <p class="route-desc clamp clamp-3" id="routeSummary"></p>
+          <p class="clear-count clamp clamp-2" id="clearCount"></p>
+        </section>
+      </div>
+
+      <aside>
+        <section class="side-box">
+          <div class="side-title">SCENE / SOUND NOTE</div>
+          <div class="side-body">
+            <p class="clamp clamp-5">
+              화면 가장자리에 스캔라인이 생기고, 커서는 한 박자 늦게 따라온다.
+              버튼을 누를 때마다 <strong>짧은 클릭</strong>과 함께 어딘가에서 <strong>로그</strong>가 갱신된다.
+            </p>
+            <p class="clamp clamp-4">
+              마지막에는 UI 레이어가 얇아지며, 질문이 바뀐다.
+              “어떤 선택을 했는지”가 아니라 “<strong>어떻게</strong> 선택했는지”.
+            </p>
+          </div>
+        </section>
+
+        <section class="side-box">
+          <div class="side-title">WHAT THIS ENDING MEANS</div>
+          <div class="side-body">
+            <p class="clamp clamp-6" id="meaningText">
+              ENDING D는 사건의 결말이 아니라, 이야기·플레이어·시스템의 관계를 드러내는 메타 엔딩이다.
+              보였던 “내 선택”이 사실은 설계된 범위 안에서만 가능했음을 보여 준다.
+            </p>
+          </div>
+        </section>
+
+        <section class="side-box">
+          <div class="side-title">YOUR KEY CHOICES</div>
+          <div class="side-body">
+            <ul id="keyChoices"></ul>
+          </div>
+        </section>
+      </aside>
+    </section>
+
+    <footer class="footer">
+      <div class="btn-row">
+        <button class="btn primary" onclick="location.href='Start.html'">
+          <span class="icon">↺</span>
+          처음부터 다시 시작
+        </button>
+        <a class="btn" href="지난선택.html">
+          <span class="icon">☷</span>
+          지난 선택 보기
+        </a>
+        <a class="btn" href="endings.html">
+          <span class="icon">✦</span>
+          엔딩 모음집
+        </a>
+      </div>
+      <p class="foot-note">
+        이 엔딩을 보면 <strong>ENDING D</strong>가 자동으로 해금되며,
+        <em>지난 선택</em> 화면과 <em>엔딩 모음집</em>에서 확인할 수 있습니다.
+      </p>
+    </footer>
+  </div>
+
+  <script>
+    // URL 파라미터 읽기
+    function getParam(name){
+      const params = new URLSearchParams(location.search);
+      return params.get(name);
+    }
+
+    // 첫번째 텍스트파일 로직 유지: path는 선택할 때마다 누적될 수 있음 (길어도 OK)
+    function normalizePath(raw){
+      return (raw || '')
+        .toUpperCase()
+        .replace(/[^AB]/g, '');
+    }
+
+    // (선택) A/B를 사람이 읽는 문장으로 바꾸고 싶으면 수정
+    // 예) const LABEL = { A: "기록을 더 본다", B: "창을 닫는다" };
+    const LABEL = null;
+
+    function labelOf(ch){
+      if(!LABEL) return ch;
+      return LABEL[ch] || ch;
+    }
+
+    // 마지막 2개의 선택으로 루트 해석(전체 path는 그대로 표시)
+    function lastTwo(path){
+      if(path.length >= 2) return path.slice(-2);
+      if(path.length === 1) return ('_' + path).slice(-2); // "_A" 형태
+      return "__";
+    }
+
+    const ROUTE_DATA = {
+      "AA":{
+        meaning:"패턴을 따라가다 시스템을 먼저 인식했다. 흐름 속에서 구조를 확인했다.",
+        choices:[
+          "반복되는 패턴을 눈치챘다.",
+          "선택이 곧 기록이라는 걸 이해했다.",
+          "결말 대신 구조를 바라봤다."
+        ],
+        quote:"“이건 이야기라기보다, 로그다.”"
+      },
+      "AB":{
+        meaning:"따라가면서도 의심했다. 내 선택과 설계의 경계를 끝까지 확인했다.",
+        choices:[
+          "의심을 놓지 않았다.",
+          "규칙을 발견하려 했다.",
+          "‘선택’의 뒤를 봤다."
+        ],
+        quote:"“정답이 아니라 규칙을 찾고 있었다.”"
+      },
+      "BA":{
+        meaning:"망설임 속에서 구조가 드러났다. 멈춤이 오히려 시스템을 보이게 했다.",
+        choices:[
+          "멈추는 순간을 만들었다.",
+          "흐름을 끊고 확인했다.",
+          "구조를 의식적으로 선택했다."
+        ],
+        quote:"“멈춘 순간, 화면이 나를 본다.”"
+      },
+      "BB":{
+        meaning:"빠져나가려 했지만 더 큰 틀을 보게 됐다. 탈출은 또 다른 분기였다.",
+        choices:[
+          "빠져나갈 길을 찾았다.",
+          "설계의 바깥을 상상했다.",
+          "결말이 아닌 질문을 남겼다."
+        ],
+        quote:"“탈출도 선택지 안에 있었다.”"
+      },
+      "__":{
+        meaning:"아직 선택 기록이 없다. 하지만 ‘관찰’은 이미 시작됐다.",
+        choices:[
+          "아직 기록이 없다.",
+          "그래도 화면은 측정한다.",
+          "첫 선택이 곧 로그가 된다."
+        ],
+        quote:"“시작 화면도 이미 엔딩의 일부다.”"
+      },
+      "_A":{
+        meaning:"첫 선택은 A였다. 다음 선택이 붙는 순간 루트가 완성된다.",
+        choices:["첫 선택(A)을 남겼다.","기록이 시작됐다.","다음 분기를 기다린다."],
+        quote:"“한 번의 선택은 아직 방향일 뿐.”"
+      },
+      "_B":{
+        meaning:"첫 선택은 B였다. 다음 선택이 붙는 순간 루트가 완성된다.",
+        choices:["첫 선택(B)을 남겼다.","기록이 시작됐다.","다음 분기를 기다린다."],
+        quote:"“한 번의 선택은 아직 방향일 뿐.”"
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 해금
+      try{ localStorage.setItem('ending:ENDING_D','1'); }catch(e){}
+
+      // 클리어 카운트
+      const keyCount = 'ending:ENDING_D_count';
+      let count = 0;
+      try{
+        count = parseInt(localStorage.getItem(keyCount) || '0', 10);
+        count++;
+        localStorage.setItem(keyCount, String(count));
+      }catch(e){}
+
+      const rawPath = getParam('path');
+      const path = normalizePath(rawPath);
+
+      // ROUTE DEPTH
+      const depthEl = document.getElementById('routeDepth');
+      if(depthEl) depthEl.textContent = String(path.length);
+
+      // route pills (스크롤 방지: 마지막 10개만 표시)
+      const pillsEl = document.getElementById('routePills');
+      if(pillsEl){
+        pillsEl.innerHTML = '';
+        if(path.length === 0){
+          const pill = document.createElement('span');
+          pill.className = 'pill';
+          pill.textContent = 'NO LOG';
+          pillsEl.appendChild(pill);
+        }else{
+          const maxShow = 10;
+          const hidden = Math.max(0, path.length - maxShow);
+          const slice = path.slice(-maxShow).split('');
+          if(hidden > 0){
+            const more = document.createElement('span');
+            more.className = 'pill';
+            more.textContent = `… +${hidden}`;
+            pillsEl.appendChild(more);
+          }
+          for(const ch of slice){
+            const pill = document.createElement('span');
+            pill.className = 'pill ' + (ch === 'A' ? 'a' : 'b');
+            pill.textContent = labelOf(ch);
+            pillsEl.appendChild(pill);
+          }
+        }
+      }
+
+      // route meaning by last two
+      const lt = lastTwo(path);
+      const data = ROUTE_DATA[lt] || ROUTE_DATA["__"];
+
+      // quote
+      const quoteEl = document.getElementById('quoteLine');
+      if(quoteEl) quoteEl.textContent = data.quote;
+
+      // summary string
+      const summaryEl = document.getElementById('routeSummary');
+      if(summaryEl){
+        if(path.length === 0){
+          summaryEl.innerHTML = '<strong>NO LOG</strong> · 선택 기록이 없습니다. (path 파라미터가 비어있음)';
+        }else{
+          const arrow = path.split('').map(labelOf).join(' → ');
+          summaryEl.innerHTML = `<strong>PATH</strong> · ${arrow}`;
+        }
+      }
+
+      // meaning text
+      const meaningEl = document.getElementById('meaningText');
+      if(meaningEl) meaningEl.textContent = data.meaning;
+
+      // key choices
+      const keyChoices = document.getElementById('keyChoices');
+      if(keyChoices){
+        keyChoices.innerHTML = '';
+        for(const item of data.choices){
+          const li = document.createElement('li');
+          li.textContent = item;
+          keyChoices.appendChild(li);
+        }
+      }
+
+      // clear count text (길면 clamp로 자동 잘림)
+      const clearCountEl = document.getElementById('clearCount');
+      if(clearCountEl){
+        if(count <= 1){
+          clearCountEl.textContent = '이번이 이 엔딩에 처음 도달한 기록입니다.';
+        }else{
+          clearCountEl.textContent = `지금까지 이 엔딩에 도달한 횟수: ${count}회`;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

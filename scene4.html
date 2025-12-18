@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>SCENE 4 — 마지막 장면</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css"/>
+
+<style>
+  :root{
+    --ink:#f5f0e6;
+    --ink-dim:#cfc5b8;
+    --stroke:#ffffff22;
+    --accent:#ffe1a6;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:radial-gradient(circle at 0 0,#223244 0,#04060a 42%,#020205 100%);
+    color:var(--ink);
+    font-family:'Pretendard Variable',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+    overflow:hidden;
+  }
+
+  .stage{ height:100vh; display:flex; }
+
+  /* ✅ 왼쪽: flex 레이아웃으로 본문 영역 최대 확보 */
+  .left{
+    width:45%;
+    padding:6vh clamp(20px,4vw,44px);
+    border-right:1px solid var(--stroke);
+    background:linear-gradient(180deg,#0f121a,#06060a);
+    overflow:hidden;
+    position:relative;
+
+    display:flex;
+    flex-direction:column;
+    gap:0;
+  }
+
+  .right{
+    width:55%;
+    position:relative;
+    overflow:hidden;
+    background:#000;
+  }
+
+  .badge{
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    margin-bottom:8px;
+    flex:0 0 auto;
+  }
+  h1{
+    margin:0 0 8px;
+    font-size:clamp(22px,3vw,32px);
+    letter-spacing:.01em;
+    flex:0 0 auto;
+  }
+  .lead{
+    margin:0 0 14px;
+    font-size:clamp(14px,1.4vw,16px);
+    color:var(--ink-dim);
+    line-height:1.7;
+    flex:0 0 auto;
+  }
+
+  .meta{
+    font-size:12px;
+    color:#b9b0a2;
+    margin-bottom:14px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    flex:0 0 auto;
+  }
+  .pill{
+    padding:6px 10px;
+    border-radius:999px;
+    border:1px solid var(--stroke);
+    background:rgba(0,0,0,.28);
+    backdrop-filter:blur(4px);
+  }
+
+  hr{
+    border:none;
+    border-top:1px solid var(--stroke);
+    margin:10px 0 14px;
+    flex:0 0 auto;
+  }
+
+  /* ✅ 본문: 남는 영역을 전부 사용 (스크롤은 여전히 금지) */
+  .content{
+    flex:1 1 auto;          /* 핵심 */
+    overflow:hidden;         /* ✅ 스크롤 금지 */
+    padding-bottom:18px;
+
+    font-size:clamp(17px,1.35vw,20px);
+    line-height:1.95;
+    color:#f2ede3;
+    letter-spacing:.01em;
+  }
+  .content p{ margin:0 0 1.05em; }
+
+  .hintBar{
+    flex:0 0 auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:10px;
+    padding-top:10px;
+    color:var(--ink-dim);
+    font-size:12px;
+    pointer-events:none;
+  }
+  .kbd{
+    font:12px/1 monospace;
+    padding:2px 6px;
+    border-radius:6px;
+    border:1px solid #ffffff38;
+    background:#0b0b0bcc;
+    color:#f5f0e2;
+    margin:0 2px;
+  }
+
+  /* 오른쪽 이미지 */
+  .hero{ position:absolute; inset:0; }
+  .hero-img{
+    position:absolute; inset:0;
+    background:center/cover no-repeat;
+    filter:brightness(.88) contrast(1.06);
+    transform:scale(1.02);
+  }
+  .hero::after{
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(80% 80% at 50% 50%,transparent 55%,rgba(0,0,0,.78));
+  }
+  .caption{
+    position:absolute;
+    left:18px; bottom:16px;
+    padding:8px 10px;
+    border-radius:10px;
+    border:1px solid var(--stroke);
+    background:#090909c5;
+    font-size:12px;
+    color:#e7decf;
+    backdrop-filter:blur(3px);
+  }
+
+  @media (max-width:900px){
+    .stage{flex-direction:column; height:100vh}
+    .left,.right{width:100%; height:50%}
+    .left{padding:18px 16px 18px}
+  }
+</style>
+</head>
+
+<body>
+
+<div class="stage" id="sceneRoot">
+  <section class="left" id="leftArea">
+    <div class="badge" id="badge">SCENE 4</div>
+    <h1 id="title">제목 자리</h1>
+    <p class="lead" id="lead">리드 문장 자리</p>
+
+    <div class="meta">
+      <span class="pill" id="metaRoute">루트: -</span>
+      <span class="pill" id="metaEnding">도달 예정 엔딩: -</span>
+      <span class="pill" id="metaPage">페이지: -</span>
+    </div>
+
+    <hr/>
+
+    <div class="content" id="content"></div>
+
+    <div class="hintBar">
+      <div id="hintText">다음으로 <span class="kbd">Space</span> 또는 클릭</div>
+      <div id="progressText">-</div>
+    </div>
+  </section>
+
+  <section class="right" aria-hidden="true">
+    <div class="hero">
+      <div class="hero-img" id="heroImg"></div>
+      <div class="caption" id="caption">마지막 선택이 지나간 자리</div>
+    </div>
+  </section>
+</div>
+
+<script>
+  // ===== 1) path 읽기 =====
+  const params   = new URLSearchParams(location.search);
+  const fullPath = (params.get('path') || 'AAAA').trim().toUpperCase(); // 예: ABBA
+
+  // ===== 2) 엔딩 4개 매핑 (A 개수 기반) =====
+  function countA(str){ return (str.match(/A/g) || []).length; }
+  const aCount = countA(fullPath);
+
+  let endingKey = 'D';
+  if(aCount === 4) endingKey = 'A';
+  else if(aCount === 3) endingKey = 'B';
+  else if(aCount === 2) endingKey = 'C';
+  else endingKey = 'D';
+
+  const ENDING_FILE = ({
+    A:'ending_A.html',
+    B:'ending_B.html',
+    C:'ending_C.html',
+    D:'ending_D.html'
+  })[endingKey];
+
+  // ===== 3) 마지막 선택 A/B로 씬4 톤 분기 =====
+  const lastPick = fullPath.slice(-1) === 'B' ? 'B' : 'A';
+
+  const SCENE4 = {
+    A:{
+      badge:'SCENE 4-A · 기록을 밀어붙이다',
+      title:'당신이 쓰는 순간, 사건은 고정된다',
+      lead:'“알고도 모른 척”하는 쪽을 버린다. 남겨진 공백을, 오늘은 직접 메우기로 한다.',
+      caption:'모니터 앞 — “정리 파일: FINAL_DRAFT”',
+      hero:"4번.jpg",
+      lines:[
+        '새 문서를 열자 커서가 아무 말 없이 깜빡인다. 그 깜빡임이 꼭 “지금부터 네 책임이야”라고 말하는 것처럼 느껴진다. 화면은 새하얗지 않은데도, 이상하게 눈이 시리다.',
+        '당신은 탭을 하나씩 닫기 시작한다. 닫는 게 “포기”가 아니라 “선별”이라는 감각이 늦게 와서, 조금 안심이 된다. 아무거나 다 붙잡으면 결국 아무것도 붙잡지 못한다는 걸, 오늘은 인정한다.',
+        '기사에서 건져 올린 날짜, 인터뷰에서 흘러나온 단서, 댓글 속에 파묻힌 증언의 파편. 그 조각들을 한 줄씩 옮겨 적는다. 적는 동안에는 뇌가 조용해진다. 소음이 줄어든 자리에 문장만 남는다.',
+        '어느 순간부터 사건의 타임라인이 기사보다 더 또렷해진다. 당신이 쓰는 문장이 “정리”를 넘어 “결론”처럼 보이기 시작한다. 그때부터 손끝이 약간 무거워진다. 글이 사실을 만드는 느낌이 들기 때문이다.',
+        '문득 깨닫는다. 이야기는 사실이어서 무서운 게 아니라, 누군가가 “사실처럼” 만들 수 있어서 무섭다. 클릭과 요약과 편집으로, 사람들은 같은 밤을 전혀 다른 밤으로 바꿔 버린다.',
+        '당신은 망설이다가도 문장 끝에 점을 찍는다. 점 하나가 ‘확정’이 된다. 화면 속에서 확정은 아주 쉽게 만들어진다. 쉽게 만들어지는 만큼, 나중에 지우기도 쉽다. 그 쉬움이 더 위험하다.',
+        '잠깐 손을 떼면 방 안이 너무 조용해진다. 키보드 소리만이 이 밤이 아직 끝나지 않았다는 증거가 된다. 당신은 손목을 돌리고, 다시 입력창으로 돌아온다.',
+        '파일명을 고친다. FINAL_DRAFT. 그 이름은 멋있지만 당신은 안다. 완성은 늘 다음 수정본 뒤에 있다. 그런데도 오늘은 “임시”라고 쓰고 싶지 않다. 오늘만큼은 끝에 가 닿았다고 믿고 싶다.',
+        '저장 버튼을 누르는 순간, 작은 효과음이 난다. 아주 짧은 소리. 그 소리가 마치 증거처럼 남는다. 최소한 오늘 밤의 당신은 “아무것도 하지 않은 사람”으로 남지 않기로 했으니까.',
+        '마지막으로 문서를 스크롤하려다 멈춘다. 스크롤은 읽는 행위지만, 지금 당신이 필요한 건 읽기보다 “묶기”다. 그래서 한 줄 더 쓴다. 이 사건을 이해하려는 사람이 아니라, 이 사건을 “끝내려는” 사람의 문장으로.'
+      ]
+    },
+    B:{
+      badge:'SCENE 4-B · 멈추기로 선택하다',
+      title:'닫는 버튼은 결말이 아니라 경계선이다',
+      lead:'더 이상 이 밤을 루프로 만들지 않기로 한다. “지금은 여기까지”라는 선을 긋는다.',
+      caption:'어두운 방 — “종료하시겠습니까?”',
+      hero:"4번.jpg",
+      lines:[
+        '당신은 마우스를 오래 쥐고 있다가 조용히 손을 푼다. 손바닥에 남은 열이 이상하게 낯설다. 방금 전까지 화면을 붙잡고 있던 건 손이 아니라, 마음이었을지도 모른다.',
+        '브라우저 위에는 탭이 너무 많다. 탭은 정보처럼 보이지만 사실은 감정의 덩어리다. 불안, 분노, 호기심, 그리고 피곤. 탭이 늘어날수록 확신은 늘지 않고, 대신 피로만 늘어난다.',
+        '한 번 더 읽으면 뭔가가 “정리”될 것 같지만 동시에 안다. 그 정리는 영원히 오지 않을 수도 있다. 사건은 끝났는데, 이야기만 끝나지 않는 밤들이 있다.',
+        '당신은 창을 닫는다. 그리고 또 하나를 닫는다. 닫을수록 화면은 줄어드는데 머릿속은 오히려 넓어진다. 화면이 작아지는 만큼, 생각이 새어 나온다.',
+        '문득 생각한다. 혹시 이 사건의 진실보다 중요한 건, 내가 이 사건을 “어떤 방식으로 소비했는지”일지도 모른다고. 나는 단서를 찾는 사람이었나, 아니면 불안을 먹고 사는 사람이었나.',
+        '확인창이 뜬다. 종료하시겠습니까? [확인] [취소]. 선택지가 너무 단순해서 오히려 더 오래 머문다. 단순한 질문이 가장 어려운 법이다.',
+        '확인을 누르는 건 도망이 아닐 수도 있다. 내일의 내가 오늘의 나를 미워하지 않게 하는 선택일 수도 있다. “더 이상 못하겠다”가 아니라 “여기서 멈추겠다”라는 말은, 생각보다 단단하다.',
+        '당신은 숨을 한 번 길게 내쉰다. 방 안의 빛이 조금 약해지고, 소리가 얇아진다. 밤이 제자리를 찾는 느낌이 든다. 비로소 시간이 흐르는 감각이 돌아온다.',
+        '마지막으로 화면을 바라본다. “다음은 조금 다르게 될 거야.” 그 말이 착각이든 다짐이든 오늘은 일단 끝낸다. 반복을 끊는 건, 거창한 결심이 아니라 버튼 하나일 때가 많다.',
+        '그리고 버튼을 누른다. 화면이 꺼지고, 검은 잔상이 잠깐 남는다. 그 잔상이 사라질 때까지, 당신은 아무 것도 하지 않는다. 아무 것도 하지 않는 선택도, 때로는 가장 필요한 선택이다.'
+      ]
+    }
+  };
+
+  const data = SCENE4[lastPick];
+
+  // ===== 4) 상단 반영 =====
+  document.getElementById('badge').textContent = data.badge;
+  document.getElementById('title').textContent = data.title;
+  document.getElementById('lead').textContent  = data.lead;
+  document.getElementById('caption').textContent = data.caption;
+
+  document.getElementById('metaRoute').textContent  = '루트: ' + fullPath;
+  document.getElementById('metaEnding').textContent = '도달 예정 엔딩: ENDING ' + endingKey;
+
+  const heroImg = document.getElementById('heroImg');
+  heroImg.style.backgroundImage = `url('${data.hero || '선택4.png'}')`;
+
+  // ===== 5) ✅ 스크롤 없이 자동 페이지 분할 =====
+  const contentEl = document.getElementById('content');
+  const metaPageEl = document.getElementById('metaPage');
+  const progressText = document.getElementById('progressText');
+  const hintText = document.getElementById('hintText');
+
+  let pages = [];
+  let pageIndex = 0;
+
+  function buildPages(lines){
+    // ✅ “auto 높이” 문제 방지: 실제 렌더 영역 크기로 측정
+    const W = contentEl.clientWidth;
+    const H = contentEl.clientHeight;
+
+    const measure = document.createElement('div');
+    measure.className = 'content';
+    measure.style.position = 'fixed';
+    measure.style.left = '-9999px';
+    measure.style.top = '0';
+    measure.style.width = W + 'px';
+    measure.style.height = H + 'px';
+    measure.style.overflow = 'hidden';
+    measure.style.padding = getComputedStyle(contentEl).padding;
+    measure.style.fontSize = getComputedStyle(contentEl).fontSize;
+    measure.style.lineHeight = getComputedStyle(contentEl).lineHeight;
+    measure.style.letterSpacing = getComputedStyle(contentEl).letterSpacing;
+    measure.style.fontFamily = getComputedStyle(contentEl).fontFamily;
+    document.body.appendChild(measure);
+
+    const result = [];
+    let current = [];
+
+    const fits = () => measure.scrollHeight <= measure.clientHeight;
+
+    for(const line of lines){
+      const p = document.createElement('p');
+      p.textContent = line;
+      measure.appendChild(p);
+
+      if(!fits()){
+        measure.removeChild(p);
+
+        if(current.length === 0){
+          current.push(line);
+        }else{
+          result.push(current);
+          current = [line];
+        }
+
+        measure.innerHTML = '';
+        for(const t of current){
+          const pp = document.createElement('p');
+          pp.textContent = t;
+          measure.appendChild(pp);
+        }
+      }else{
+        current.push(line);
+      }
+    }
+
+    if(current.length) result.push(current);
+    document.body.removeChild(measure);
+    return result;
+  }
+
+  function renderPage(i){
+    const total = pages.length;
+    const lines = pages[i] || [];
+    contentEl.innerHTML = lines.map(t=>`<p>${t}</p>`).join('');
+
+    metaPageEl.textContent = `페이지: ${i+1} / ${total}`;
+    progressText.textContent = `${i+1} / ${total}`;
+
+    if(i < total - 1){
+      hintText.innerHTML = `다음 페이지로 <span class="kbd">Space</span> 또는 클릭`;
+    }else{
+      hintText.innerHTML = `한 번 더 <span class="kbd">Space</span> 또는 클릭하면 엔딩으로 이동`;
+    }
+  }
+
+  function goEnding(){
+    location.href = ENDING_FILE + '?path=' + encodeURIComponent(fullPath);
+  }
+
+  function next(){
+    if(pageIndex < pages.length - 1){
+      pageIndex++;
+      renderPage(pageIndex);
+    }else{
+      goEnding();
+    }
+  }
+
+  async function init(){
+    try{ if(document.fonts && document.fonts.ready) await document.fonts.ready; }catch(e){}
+    pages = buildPages(data.lines);
+    pageIndex = 0;
+    renderPage(pageIndex);
+  }
+
+  init();
+
+  let resizeTimer = null;
+  window.addEventListener('resize', ()=>{
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(init, 150);
+  });
+
+  document.getElementById('sceneRoot').addEventListener('click', next);
+  window.addEventListener('keydown', (e)=>{
+    const tag = (e.target.tagName||'').toLowerCase();
+    const typing = (tag === 'input' || tag === 'textarea' || e.target.isContentEditable);
+    if(typing) return;
+
+    if(e.key === ' ' || e.key === 'Enter'){
+      e.preventDefault();
+      next();
+    }
+  });
+</script>
+
+</body>
+</html>

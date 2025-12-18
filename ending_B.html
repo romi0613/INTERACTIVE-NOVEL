@@ -19,13 +19,6 @@
     }
 
     /* ===== 엔딩별 테마 ===== */
-    body.theme-truth{ /* (A엔딩용 – 여기선 안 쓰지만 남겨둠) */
-      --accent-main:#ffb36b;
-      --accent-strong:#ffd975;
-      --accent-pill:#ff7b4b;
-      --bg-grad-1:#3b1c22;
-      --bg-grad-2:#1a0b10;
-    }
     body.theme-loop{  /* ENDING B용 (보라/네온 루프 느낌) */
       --accent-main:#9a84ff;
       --accent-strong:#d2c8ff;
@@ -131,64 +124,87 @@
       letter-spacing:.3em;
       text-transform:uppercase;
       color:var(--muted);
+      margin-bottom:6px;
     }
     .ending-name{
-      margin:4px 0 4px;
-      font-size:1.6rem;
-      font-weight:700;
-      color:var(--accent-main);
+      margin:0 0 10px;
+      font-size:clamp(26px,3.2vw,34px);
+      line-height:1.15;
+      color:var(--accent-strong);
+      text-shadow:0 0 24px rgba(160,130,255,.25);
     }
     .status-line{
       font-size:.8rem;
-      letter-spacing:.22em;
+      letter-spacing:.16em;
       text-transform:uppercase;
-      color:#d6c9bd;
-      margin-bottom:16px;
+      color:var(--muted);
+      padding-bottom:12px;
+      border-bottom:1px solid #ffffff1f;
+      margin-bottom:14px;
+    }
+    .status-line #routeDepth{
+      color:var(--accent-strong);
+      font-weight:700;
     }
 
     .summary{
-      font-size:.95rem;
+      font-size:.96rem;
       line-height:1.9;
       color:var(--ink);
-      margin-bottom:18px;
     }
-    .summary p{margin:.3em 0;}
+    .summary p{margin:.45em 0;}
     .summary p.lead{
       font-size:1.02rem;
-      color:#fff7fc;
+      color:#f9efe3;
     }
 
-    /* ===== 하단 그리드 ===== */
-    .ending-grid{
-      display:grid;
-      grid-template-columns:1.1fr 1fr;
-      gap:14px;
+    /* 선택 경로/요약 */
+    .route-text{
       margin-top:10px;
+      font-size:.9rem;
+      line-height:1.7;
+      color:var(--muted);
+    }
+    .route-text strong{color:var(--accent-strong);}
+
+    /* ===== 아래 정보 그리드 ===== */
+    .ending-grid{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns:1.25fr 1fr;
+      gap:16px;
     }
 
     .panel{
       border-radius:12px;
-      border:1px solid #ffffff1f;
-      background:linear-gradient(135deg, rgba(10,8,20,.98), rgba(3,3,10,.98));
-      padding:12px 14px 12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.26);
+      padding:12px 14px;
       font-size:.9rem;
-      color:var(--ink);
     }
-
     .panel h2{
       margin:0 0 6px;
-      font-size:.8rem;
-      letter-spacing:.22em;
+      font-size:.82rem;
+      letter-spacing:.18em;
       text-transform:uppercase;
-      color:var(--accent-strong);
+      color:var(--accent-pill);
     }
-    .panel ul{
+    .panel p{
       margin:0;
+      color:var(--muted);
+      line-height:1.7;
+      font-size:.88rem;
+    }
+
+    .panel ul{
+      margin:4px 0 0;
       padding-left:1.1em;
       list-style:disc;
       color:var(--muted);
       line-height:1.7;
+      font-size:.86rem;
     }
+    .panel ul li + li{margin-top:2px;}
 
     .panel-wide{
       grid-column:1/-1;
@@ -196,11 +212,9 @@
       background:
         radial-gradient(circle at 0 0, rgba(160,120,255,.16) 0, rgba(5,4,16,1) 55%);
     }
-    .panel-wide h2{
-      color:var(--accent-pill);
-    }
+    .panel-wide h2{color:var(--accent-pill);}
 
-    /* 버튼 / 푸터 */
+    /* ===== 버튼 / 푸터 ===== */
     .footer{
       margin-top:14px;
       padding-top:10px;
@@ -233,14 +247,11 @@
       color:#0e081c;
       font-weight:600;
     }
-    .btn span.icon{
-      font-size:.9rem;
-    }
+    .btn span.icon{font-size:.9rem;}
     .btn:hover{
       border-color:var(--accent-main);
       box-shadow:0 0 18px rgba(170,150,255,.5);
     }
-
     .footer-note{
       font-size:.78rem;
       color:var(--muted);
@@ -249,14 +260,11 @@
     @media (max-width:720px){
       body{padding:14px;}
       .ending-frame{padding:18px 16px;}
-      .ending-grid{
-        grid-template-columns:1fr;
-      }
+      .ending-grid{grid-template-columns:1fr;}
     }
   </style>
 </head>
 
-<!-- ENDING B는 loop 테마 -->
 <body class="theme-loop">
   <div class="ending-frame">
     <!-- 상단 -->
@@ -275,8 +283,9 @@
     <section class="ending-card">
       <div class="kicker">ENDING B</div>
       <h1 class="ending-name">끝나지 않는 밤</h1>
+
       <div class="status-line">
-        STATUS · UNLOCKED · ROUTE DEPTH : <span id="routeDepth">2</span>
+        STATUS · UNLOCKED · ROUTE DEPTH : <span id="routeDepth">0</span>
       </div>
 
       <div class="summary">
@@ -289,38 +298,28 @@
           처음으로 되돌아간다. 이 엔딩에서 주인공은 진실 대신
           <strong>“다시 하기”라는 선택지</strong>에 갇힌다.
         </p>
-        <p id="routeIntro">
-          초반 선택에서 사건과 거리를 두었고, 두 번째 갈림길에서도 결정적인 순간마다
-          한 발 물러서는 쪽을 택했다. 모호한 선택들이 겹쳐지며, 이야기는 결말 대신
-          길어진 밤 속을 빙글빙글 돌게 된다.
-        </p>
+
+        <!-- path(루트)에 따라 바뀌는 짧은 설명 -->
+        <p id="routeIntro"></p>
+
+        <!-- 이번 플레이의 선택 문자열 요약 -->
+        <p id="routeSummary" class="route-text"></p>
       </div>
 
-      <!-- 2열 패널 -->
       <div class="ending-grid">
-        <!-- 왼쪽 : KEY CHOICES -->
         <section class="panel">
           <h2>YOUR KEY CHOICES</h2>
-          <ul id="keyChoices">
-            <li>첫 선택에서 책이나 단서를 그냥 두고 나가며, 사건과 자신 사이에 안전거리를 두려 했다.</li>
-            <li>도살자 관련 기록을 끝까지 읽지 않고, 중간에서 앱을 닫거나 다른 화면으로 도망쳤다.</li>
-            <li>클라이맥스 직전, “다시 선택하기”나 “되돌아가기”를 반복적으로 선택해 흐름을 끊어냈다.</li>
-          </ul>
+          <ul id="keyChoices"></ul>
         </section>
 
-        <!-- 오른쪽 : 의미 설명 -->
         <section class="panel">
           <h2>WHAT THIS ENDING MEANS</h2>
-          <p style="margin:0; color:var(--muted); line-height:1.8;">
-            이 루트에서 세계는 사건이 끝났다고 말하지만, 시스템은 당신의 되감기를
-            <strong>모두 기억합니다.</strong> 주인공은 분명 일상을 되찾은 것처럼 보이지만,
-            화면을 끄거나 뒤로 가기를 누를 때마다 같은 밤으로 다시 불려옵니다.
-            이 엔딩은 “안전하게 빠져나온 것 같다”는 착각 뒤에 숨은,
-            <em>플레이어의 책임 회피</em>를 보여주는 루프입니다.
+          <p>
+            이 엔딩은 “완벽한 결론”이 아니라 <strong>결정을 미루는 습관</strong>이 만든 반복입니다.
+            다시 시작할 수 있다는 편안함이, 오히려 밤을 끝낼 단 한 번의 용기를 지워버립니다.
           </p>
         </section>
 
-        <!-- 아랫줄 : IF YOU HAD... -->
         <section class="panel panel-wide">
           <h2>IF YOU HAD CHOSEN DIFFERENTLY…</h2>
           <ul id="diffChoices">
@@ -334,7 +333,6 @@
         </section>
       </div>
 
-      <!-- 버튼 / 푸터 -->
       <footer class="footer">
         <div class="btn-row">
           <button class="btn primary" onclick="location.href='Start.html'">
@@ -350,6 +348,7 @@
             엔딩 모음집
           </button>
         </div>
+
         <div class="footer-note">
           이 엔딩을 보면 <strong>ENDING B</strong>가 자동으로 해금되어
           <em>지난 선택 보기</em>와 <em>엔딩 모음집</em> 화면에서 확인할 수 있습니다.
@@ -359,47 +358,105 @@
   </div>
 
   <script>
-    // URL 파라미터 읽기
     function getParam(name){
       const params = new URLSearchParams(location.search);
       return params.get(name);
     }
 
+    function normalizePath(raw){
+      return (raw || '')
+        .toUpperCase()
+        .replace(/[^AB]/g, '');
+    }
+
+    function prettyPath(path){
+      return path.split('').join(' → ');
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-      // ✅ 엔딩 B 해금
-      localStorage.setItem('ending:ENDING_B','1');
+      // 해금 기록
+      try{
+        localStorage.setItem('ending:ENDING_B','1');
+      }catch(e){}
 
-      // choice 조합에 따라 설명만 살짝 바꾸고 싶으면 path로 넘겨주면 됨
-      const path = getParam('path') || 'AB';   // 예: AB 루트에서 루프 엔딩이 나왔다고 가정
+      const rawPath = getParam('path') || '';
+      const fullPath = normalizePath(rawPath);
+
+      // ROUTE DEPTH는 '누적 선택 수' 기준 (첫번째 파일 로직 유지)
+      const depthEl = document.getElementById('routeDepth');
+      if(depthEl) depthEl.textContent = String(fullPath.length);
+
+      // routeSummary
+      const summaryEl = document.getElementById('routeSummary');
+      if(summaryEl){
+        if(fullPath){
+          summaryEl.innerHTML = `이번 플레이에서 당신은 <strong>${prettyPath(fullPath)}</strong> 순서로 선택해 이 엔딩에 도달했습니다.`;
+        }else{
+          summaryEl.textContent = '이번 플레이의 선택 기록을 찾지 못했습니다. (path 파라미터가 비어있을 수 있어요)';
+        }
+      }
+
+      // 루트 소개는 "마지막 두 선택"을 기준으로 분기 (길이가 2보다 길어도 대응)
+      const key = (fullPath.length >= 2) ? fullPath.slice(-2) : fullPath.padEnd(2,'A');
+
       const routeIntro = document.getElementById('routeIntro');
+      const keyChoices = document.getElementById('keyChoices');
 
-      if(!routeIntro) return;
+      const routes = {
+        'AA': {
+          intro: '진실에 닿을 수 있었던 루트였지만, 마지막까지 결정을 미루는 선택이 겹치며 밤은 끝나지 않았습니다. 당신은 “조금만 더”를 반복하다가, 결국 루프 안에 남았습니다.',
+          choices: [
+            '결정적인 순간에 한 발 물러섰다.',
+            '확신이 서기 전까지는 “다시 하기”를 눌렀다.',
+            '진실보다 안전한 반복을 선택했다.'
+          ]
+        },
+        'AB': {
+          intro: '처음부터 사건과 거리를 두었고, 마지막 선택에서도 안전해 보이는 쪽만 골랐습니다. 그 결과 이야기는 결말을 내지 못한 채, 같은 밤을 복사해 붙여넣듯 반복됩니다.',
+          choices: [
+            '관여하기보단 거리를 두었다.',
+            '위험을 피하는 선택을 우선했다.',
+            '결론 대신 ‘유지’를 택했다.'
+          ]
+        },
+        'BA': {
+          intro: '중간에 한 번은 깊이 관여하려 했지만, 곧바로 되돌리거나 다른 선택을 시도했습니다. 여러 루트를 뒤섞는 과정에서, 시스템은 당신을 “테스트 중인 플레이어”로 분류하고 루프에 가둡니다.',
+          choices: [
+            '한 번은 과감히 들어갔다.',
+            '하지만 곧 되감기/수정으로 방향을 틀었다.',
+            '결정의 책임을 분산시키려 했다.'
+          ]
+        },
+        'BB': {
+          intro: '철저하게 아무 책임도 지지 않으려 한 끝에, 당신은 가장 길고 조용한 벌을 받게 됩니다. 화면을 끄는 순간마다, 같은 밤의 첫 장면으로 돌아옵니다.',
+          choices: [
+            '책임을 피하는 선택을 반복했다.',
+            '누군가를 구하기보다 “나만 빠져나오기”를 택했다.',
+            '끝을 내기보다 종료/회피를 눌렀다.'
+          ]
+        }
+      };
 
-      switch(path){
-        case 'AA':
-          routeIntro.textContent =
-            '단서를 몇 개는 건드렸지만, 결정적인 순간마다 다시 뒤로 물러섰습니다. ' +
-            '진실에 닿을 수 있었던 루트였지만, 당신의 반복된 망설임이 밤을 끝내지 못하게 만들었습니다.';
-          break;
-        case 'AB':
-          routeIntro.textContent =
-            '처음부터 사건과 거리를 두었고, 마지막 선택에서도 안전해 보이는 쪽만 골랐습니다. ' +
-            '그 결과 이야기는 결말을 내지 못한 채, 같은 밤을 복사해 붙여넣듯 계속 반복됩니다.';
-          break;
-        case 'BA':
-          routeIntro.textContent =
-            '중간에 한 번은 깊이 관여하려고 했지만, 곧바로 되돌리거나 다른 선택을 시도했습니다. ' +
-            '여러 루트를 뒤섞는 시도 끝에, 시스템은 당신을 “테스트 중인 플레이어”로 분류하고 루프에 가둡니다.';
-          break;
-        case 'BB':
-          routeIntro.textContent =
-            '철저하게 아무 책임도 지지 않으려 한 끝에, 당신은 가장 길고 조용한 벌을 받게 됩니다. ' +
-            '문제는 끝났다고 믿지만, 화면을 끄는 순간마다 다시 같은 밤의 첫 장면으로 돌아오게 됩니다.';
-          break;
-        default:
-          routeIntro.textContent =
-            '여러 갈림길에서 애매한 선택을 반복한 끝에, 이야기는 하나의 결말이 아니라 ' +
-            '끝나지 않는야간 재생 목록처럼 변해 버렸습니다.';
+      const fallback = {
+        intro: '여러 갈림길에서 애매한 선택을 반복한 끝에, 이야기는 하나의 결말이 아니라 끝나지 않는 재생 목록처럼 변해 버렸습니다.',
+        choices: [
+          '명확한 결정보다 유예를 택했다.',
+          '되감기와 반복으로 시간을 늘렸다.',
+          '결말 대신 “루프”에 머물렀다.'
+        ]
+      };
+
+      const data = routes[key] || fallback;
+
+      if(routeIntro) routeIntro.textContent = data.intro;
+
+      if(keyChoices){
+        keyChoices.innerHTML = '';
+        for(const item of data.choices){
+          const li = document.createElement('li');
+          li.textContent = item;
+          keyChoices.appendChild(li);
+        }
       }
     });
   </script>

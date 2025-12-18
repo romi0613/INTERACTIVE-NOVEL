@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Demo End — 이 루트는 여기까지</title>
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css"/>
+
+<style>
+:root{
+  --bg:#050307;
+  --ink:#f5f0e6;
+  --muted:#b8a9a0;
+  --accent:#ffb36b;
+  --accent-soft:#ffd8a0;
+  --accent-red:#ff4b4b;
+  --stroke:#ffffff22;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 0% 0%, #3b1c24 0, #050307 40%, #020103 100%);
+  color:var(--ink);
+  font-family:'Pretendard Variable',Pretendard,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+
+/* 전체 카드 */
+.wrap{
+  width:min(960px, 96vw);
+  max-height:92vh;
+  border-radius:20px;
+  border:1px solid var(--stroke);
+  background:
+    radial-gradient(circle at 0% 0%, #3b1c24 0, #10080e 40%, #050308 100%);
+  box-shadow:
+    0 24px 90px rgba(0,0,0,.9),
+    0 0 40px rgba(255,150,80,.18);
+  padding:22px clamp(20px,3.5vw,30px);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* 상단 영역 */
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:18px;
+  margin-bottom:16px;
+}
+.logo{
+  font-size:clamp(22px,3.2vw,30px);
+  letter-spacing:.32em;
+  text-indent:.32em;
+  font-weight:800;
+  color:var(--accent-soft);
+  text-shadow:0 0 22px rgba(255,190,140,.85);
+  white-space:nowrap;
+}
+.logo span{display:inline-block;transform:translateY(-1px);}
+.end-tag{
+  text-align:right;
+  font-size:.78rem;
+  color:var(--muted);
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+.end-tag strong{
+  display:block;
+  font-size:.86rem;
+  letter-spacing:.22em;
+  color:var(--accent-soft);
+}
+
+/* 메인 패널 */
+.panel{
+  flex:1;
+  border-radius:14px;
+  border:1px solid #ffffff1f;
+  background:radial-gradient(circle at 15% 0%, #3a2622 0, #120910 38%, #070509 100%);
+  padding:18px clamp(16px,3vw,24px) 18px;
+  display:grid;
+  grid-template-columns:minmax(0,2.3fr) minmax(260px,1.5fr);
+  gap:22px;
+  overflow:auto;
+}
+
+/* 왼쪽: 텍스트 */
+.eyebrow{
+  font-size:.78rem;
+  letter-spacing:.28em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+h1{
+  margin:0 0 6px;
+  font-size:1.5rem;
+  color:var(--accent);
+}
+.meta{
+  font-size:.8rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:#d6c9c0;
+  margin-bottom:14px;
+}
+.summary{
+  font-size:.96rem;
+  line-height:1.9;
+  color:var(--ink);
+}
+.summary p{margin:.35em 0;}
+.summary p.lead{
+  font-size:1.02rem;
+  color:#f9efe3;
+}
+
+/* 선택 경로 요약 */
+.route-box{
+  margin-top:14px;
+  padding:10px 10px 12px;
+  border-radius:10px;
+  border:1px solid #ffffff20;
+  background:rgba(6,6,6,.55);
+  font-size:.82rem;
+}
+.route-label{
+  font-size:.75rem;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:#b3a698;
+  margin-bottom:6px;
+}
+.route-code{
+  font-family:monospace;
+  font-size:.9rem;
+  letter-spacing:.22em;
+  color:var(--accent-soft);
+}
+.route-list{
+  margin:8px 0 0;
+  padding-left:16px;
+  color:#d3c9bc;
+  line-height:1.6;
+}
+
+/* 오른쪽: 요약 카드 */
+.side{
+  font-size:.82rem;
+  line-height:1.6;
+  color:#d1c9bc;
+  background:#111;
+  border-radius:10px;
+  border:1px solid #ffffff1c;
+  padding:10px 12px 12px;
+  box-shadow:0 12px 32px #000b;
+}
+.side-title{
+  margin:0 0 6px;
+  font-size:.9rem;
+  font-weight:600;
+}
+.side-badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:8px;
+}
+.badge{
+  font-size:.72rem;
+  padding:3px 7px;
+  border-radius:999px;
+  border:1px solid #ffffff33;
+  background:#181818;
+  color:#f3ecdd;
+}
+.badge.red{
+  border-color:rgba(255,75,75,.8);
+  color:#ffafaf;
+}
+.badge.gold{
+  border-color:rgba(255,209,128,.9);
+  color:#ffe4b5;
+}
+
+/* 플래그 / 체크리스트 */
+.flag-list{
+  margin:0 0 10px;
+  padding-left:14px;
+}
+.flag-list li{
+  margin-bottom:3px;
+}
+.side-note{
+  margin-top:6px;
+  font-size:.76rem;
+  color:#a79f91;
+}
+
+/* 버튼 영역 */
+.actions{
+  margin-top:12px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.btn{
+  border-radius:999px;
+  padding:7px 14px;
+  font-size:.8rem;
+  letter-spacing:.04em;
+  cursor:pointer;
+  border:1px solid #ffffff33;
+  background:transparent;
+  color:var(--ink);
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  text-decoration:none;
+}
+.btn.primary{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#1b0d0b;
+  font-weight:600;
+}
+.btn:hover{
+  border-color:var(--accent);
+  box-shadow:0 0 16px rgba(255,179,107,.4);
+}
+
+/* 추천 루트 */
+.next-route{
+  margin-top:16px;
+  padding-top:10px;
+  border-top:1px dashed #ffffff24;
+}
+.next-label{
+  font-size:.75rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:#b3aa9b;
+  margin-bottom:6px;
+}
+.next-chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.next-chip{
+  font-size:.76rem;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px dashed #ffffff33;
+  color:#f0e6d7;
+  background:#181313;
+}
+
+/* 모바일 */
+@media (max-width:720px){
+  body{padding:12px;}
+  .wrap{padding:18px;max-height:none;height:auto;}
+  .panel{
+    grid-template-columns:1fr;
+    max-height:70vh;
+  }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- 상단 -->
+  <div class="top">
+    <div class="logo"><span>BANDERSNATCH</span></div>
+    <div class="end-tag">
+      <span>INTERACTIVE NOVEL · DEMO</span>
+      <strong>ROUTE SUMMARY</strong>
+    </div>
+  </div>
+
+  <!-- 본문 -->
+  <section class="panel">
+    <!-- 왼쪽 -->
+    <div>
+      <div class="eyebrow">DEMO END</div>
+      <h1 id="endTitle">이 루트는 여기까지</h1>
+      <div class="meta" id="endMeta">ROUTE · DEMO · SAMPLE PATH</div>
+
+      <div class="summary">
+        <p class="lead" id="leadText">
+          당신은 사소해 보이는 세 번의 선택 끝에서, 이 데모 버전의 마지막 장면에 도달했습니다.
+        </p>
+        <p id="bodyText">
+          실제 완성본에서는 이 지점 이후로 더 많은 선택지와 장면, 그리고 서로 다른 엔딩으로 이어지지만,
+          이번 데모에서는 이 루트까지만 체험할 수 있습니다. 오늘의 플레이 기록은
+          <em>지난 선택 보기</em> 메뉴에서 다시 확인할 수 있고, 다른 시작 선택을 통해
+          완전히 다른 흐름을 만들 수도 있습니다.
+        </p>
+      </div>
+
+      <!-- 경로 요약 -->
+      <div class="route-box">
+        <div class="route-label">선택 경로</div>
+        <div class="route-code" id="routeCode">AAA</div>
+        <ul class="route-list" id="routeList">
+          <li>Choice 1 — 아침 시리얼: <strong>슈가 퍼프</strong></li>
+          <li>Choice 2 — 터커소프트: <strong>콜린을 따라간다</strong></li>
+          <li>Choice 3 — 데모 제출: <strong>마감 안에 완성한다</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 오른쪽 요약 카드 -->
+    <aside class="side">
+      <h2 class="side-title">이 루트의 분위기</h2>
+      <div class="side-badges" id="badgeRow">
+        <span class="badge gold">안정된 현실</span>
+        <span class="badge">조용한 불안</span>
+      </div>
+
+      <ul class="flag-list" id="flagList">
+        <li>도살자 사건 뉴스에 직접 반응하지 않았다.</li>
+        <li>터커소프트의 제안을 “정상적인” 방식으로 수락했다.</li>
+        <li>완벽함보다는 마감과 현실을 우선했다.</li>
+      </ul>
+
+      <p class="side-note" id="sideNote">
+        이 루트에서는 “현실에 머무르려는 선택”이 계속 반복됩니다.  
+        다른 루트에서는 조금 더 위험하고 이상한 선택들이 기다리고 있습니다.
+      </p>
+
+      <!-- 버튼들 -->
+      <div class="actions">
+        <a href="index.html" class="btn primary">
+          <span>↺</span> 처음 화면으로
+        </a>
+        <a href="지난선택.html" class="btn">
+          <span>☷</span> 지난 선택 보기
+        </a>
+        <a href="endings.html" class="btn">
+          <span>✦</span> 엔딩 모음집
+        </a>
+      </div>
+
+      <!-- 다른 루트 추천 -->
+      <div class="next-route">
+        <div class="next-label">다음에 시도해 볼 루트</div>
+        <div class="next-chips" id="nextChips">
+          <span class="next-chip">Choice 1에서 다른 시리얼 고르기</span>
+          <span class="next-chip">터커소프트 제안을 거절해 보기</span>
+        </div>
+      </div>
+    </aside>
+  </section>
+</div>
+
+<script>
+// URL 파라미터로 루트 코드 받기 (?route=AAA / AAB / ABA / ABB...)
+function getParam(name){
+  const params = new URLSearchParams(location.search);
+  return params.get(name);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const route = getParam('route') || 'AAA';  // 기본은 AAA
+
+  const endTitle  = document.getElementById('endTitle');
+  const endMeta   = document.getElementById('endMeta');
+  const leadText  = document.getElementById('leadText');
+  const bodyText  = document.getElementById('bodyText');
+  const routeCode = document.getElementById('routeCode');
+  const routeList = document.getElementById('routeList');
+  const badgeRow  = document.getElementById('badgeRow');
+  const flagList  = document.getElementById('flagList');
+  const sideNote  = document.getElementById('sideNote');
+  const nextChips = document.getElementById('nextChips');
+
+  routeCode.textContent = route;
+
+  // 기본 값(AAA 기준)은 이미 HTML에 써 놓았고,
+  // 다른 루트일 때만 조금씩 텍스트 바꿔줌
+  if(route === 'AAA'){
+    // 그대로 사용
+  }else if(route === 'AAB'){
+    endTitle.textContent = '조금 비틀린 하루의 끝';
+    endMeta.textContent  = 'ROUTE · DEMO · AAB';
+    leadText.textContent =
+      '익숙한 선택들 사이에서, 단 한 번의 어긋남이 이 데모의 결말을 미묘하게 바꾸어 놓았습니다.';
+    bodyText.textContent =
+      '당신의 선택은 크게 벗어나지 않은 것 같지만, 마지막에 택한 작은 집착이 이 루트의 분위기를 결정합니다. ' +
+      '완성본에서는 이 지점 이후, 더 불안정한 장면과 반복되는 밤으로 이어지게 될 예정입니다.';
+
+    routeList.innerHTML = `
+      <li>Choice 1 — 아침 시리얼: <strong>슈가 퍼프</strong></li>
+      <li>Choice 2 — 터커소프트: <strong>콜린을 따라간다</strong></li>
+      <li>Choice 3 — 데모 제출: <strong>마감 이후까지 붙들고 늘어진다</strong></li>
+    `;
+
+    badgeRow.innerHTML = `
+      <span class="badge red">불안한 현실</span>
+      <span class="badge">집착</span>
+    `;
+    flagList.innerHTML = `
+      <li>일과 휴식의 경계를 스스로 무너뜨렸다.</li>
+      <li>성공보다 “완벽함”에 더 매달리려 했다.</li>
+      <li>주변 사람들의 걱정을 제대로 듣지 않았다.</li>
+    `;
+    sideNote.textContent =
+      '이 루트에서는 “끝내지 못한 마음”이 반복해서 쌓입니다. ' +
+      '다른 루트에서는 오히려 포기하거나, 전혀 다른 방향으로 튀는 선택들이 등장하게 됩니다.';
+
+    nextChips.innerHTML = `
+      <span class="next-chip">마지막 선택에서 과감히 내려놓기</span>
+      <span class="next-chip">Choice 2에서 콜린을 따라가지 않기</span>
+    `;
+  }else{
+    // 나머지 코드(ABA, ABB 등)는 간단하게 공통 메세지 사용
+    endTitle.textContent = '데모 분기의 또 다른 끝';
+    endMeta.textContent  = `ROUTE · DEMO · ${route}`;
+    leadText.textContent =
+      '여러 갈림길을 돌아 이 루트의 끝에 도착했습니다. 완성본에서는 이 이후로 더 많은 장면이 이어질 예정입니다.';
+    bodyText.textContent =
+      '지금은 구조만 보여주는 데모라 여기서 이야기가 멈추지만, ' +
+      '당신이 고른 선택들은 모두 기록되어 다음 설계에 참고될 것입니다.';
+
+    routeList.innerHTML = `
+      <li>Choice 1 — 임의의 선택 (코드: ${route[0]})</li>
+      <li>Choice 2 — 임의의 선택 (코드: ${route[1]})</li>
+      <li>Choice 3 — 임의의 선택 (코드: ${route[2]})</li>
+    `;
+
+    badgeRow.innerHTML = `
+      <span class="badge">실험적인 루트</span>
+      <span class="badge gold">데모 분기</span>
+    `;
+    flagList.innerHTML = `
+      <li>완성본에서 확장될 실험 루트입니다.</li>
+      <li>현재는 구조만 확인할 수 있습니다.</li>
+      <li>다른 루트와의 차이점을 기록 중입니다.</li>
+    `;
+    sideNote.textContent =
+      '이 루트는 프로토타입 단계의 분기로, 이후 설계 과정에서 세부 내용이 변경될 수 있습니다.';
+
+    nextChips.innerHTML = `
+      <span class="next-chip">다른 코드(AAA, AAB 등)로 다시 플레이</span>
+      <span class="next-chip">엔딩 모음집에서 전체 계획 구조 살펴보기</span>
+    `;
+  }
+});
+</script>
+</body>
+</html>

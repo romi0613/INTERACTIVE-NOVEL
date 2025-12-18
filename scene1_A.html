@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>SCENE 1 — 중간 장면</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css"/>
+
+<style>
+  :root{
+    --ink:#f5f0e6;
+    --ink-dim:#cfc5b8;
+    --bg:#050509;
+    --stroke:#ffffff22;
+    --accent:#ffe1a6;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:radial-gradient(circle at 0 0,#322027 0,#050509 42%,#020205 100%);
+    color:var(--ink);
+    font-family:'Pretendard Variable',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+  }
+
+  .stage{
+    height:100vh;
+    display:flex;
+  }
+
+  .left{
+    width:45%;
+    padding:6vh clamp(20px,4vw,40px);
+    border-right:1px solid var(--stroke);
+    background:linear-gradient(180deg,#0f1114,#070709);
+    overflow-y:hidden; /* ← 스크롤 없애기 */
+  }
+
+  .right{
+    width:55%;
+    position:relative;
+    overflow:hidden;
+    background:#000;
+  }
+
+  .badge{
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    margin-bottom:6px;
+  }
+  h1{
+    margin:0 0 8px;
+    font-size:clamp(22px,3vw,30px);
+  }
+  .lead{
+    margin:0 0 16px;
+    font-size:14px;
+    color:var(--ink-dim);
+  }
+  .meta{
+    font-size:12px;
+    color:#b9b0a2;
+    margin-bottom:18px;
+  }
+  .meta span+span{margin-left:12px;}
+  hr{
+    border:none;
+    border-top:1px solid var(--stroke);
+    margin:12px 0 18px;
+  }
+
+  .content{
+    font-size:16px;
+    line-height:1.9;
+    min-height:40vh;
+  }
+  .content p{margin:0 0 1em;}
+
+  .page-info{
+    margin-top:6px;
+    font-size:12px;
+    color:var(--ink-dim);
+    opacity:.85;
+  }
+
+  .hint{
+    margin-top:6px;
+    font-size:12px;
+    color:var(--ink-dim);
+  }
+
+  /* 오른쪽 이미지 패널 */
+  .hero{
+    position:absolute; inset:0;
+  }
+  .hero-img{
+    position:absolute; inset:0;
+    background:url('선택1.png') center/cover no-repeat;
+    filter:brightness(.92) contrast(1.05);
+  }
+  .hero::after{
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(80% 80% at 50% 50%,transparent 55%,rgba(0,0,0,.7));
+  }
+  .caption{
+    position:absolute;
+    left:18px; bottom:16px;
+    padding:8px 10px;
+    border-radius:8px;
+    border:1px solid var(--stroke);
+    background:#090909c5;
+    font-size:12px;
+    color:#e7decf;
+    backdrop-filter:blur(3px);
+  }
+
+  @media (max-width:900px){
+    .stage{
+      flex-direction:column;
+      height:auto;
+    }
+    .left,.right{
+      width:100%;
+      height:50vh;
+    }
+    .left{
+      padding:18px 16px 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="sceneRoot">
+  <!-- LEFT: 텍스트 -->
+  <section class="left">
+    <div class="badge" id="badge">SCENE 1</div>
+    <h1 id="title">제목 자리</h1>
+    <p class="lead" id="lead">리드 문장 자리</p>
+    <div class="meta">
+      <span id="metaBranch">분기: -</span>
+      <span>시간: 00:03–00:06</span>
+    </div>
+    <hr/>
+
+    <div class="content" id="content"></div>
+
+    <p class="page-info" id="pageInfo">페이지 1 / 1</p>
+    <p class="hint">
+      화면을 클릭하거나 Space / Enter 키를 누르면<br>
+      다음 페이지로 넘어갑니다. 마지막 페이지에서 한 번 더 누르면<br>
+      CHOICE 2 화면으로 이동합니다.
+    </p>
+  </section>
+
+  <!-- RIGHT: 이미지 -->
+  <section class="right" aria-hidden="true">
+    <div class="hero">
+      <div class="hero-img"></div>
+      <div class="caption" id="caption">장면 캡션</div>
+    </div>
+  </section>
+</div>
+
+<script>
+  // URL에서 path = 'A' 또는 'B'
+  const params = new URLSearchParams(location.search);
+  const path   = params.get('path') || 'A';
+
+  // CHOICE 1 이후 장면 텍스트
+  const SCENE1 = {
+    A:{
+      badge:'SCENE 1-A · 기사로 진입',
+      title:'열어버린 탭, 되돌릴 수 없는 스크롤',
+      lead:'당신은 방금 전, 첫 갈림길에서 제목을 눌렀다. 화면이 잠시 비어 있고, 그 공백을 기억이 채운다.',
+      caption:'기사 페이지 — “도살자 사건, 다시 떠오른 의혹들”',
+      paras:[
+        '로딩 바가 끝까지 차오르고, 화면이 하얗게 번졌다가 서서히 글자가 잡힌다. 도살자 사건을 다루는 장문의 기사가 화면 가득 펼쳐진다. 낯선 이름들과 날짜 사이에, 예전 뉴스에서 스쳐 들었던 지명들이 다시 등장한다. 그중 하나는, 당신이 한때 살았던 동네와 몇 정거장 차이밖에 나지 않는 곳이다.',
+        '첫 문단은 생각보다 담담하다. 사건의 개요, 피해자 수, 당시 수사본부 브리핑. 어디선가 한 번쯤 읽어 본 듯한 문장들이 반복된다. 하지만 두 번째, 세 번째 문단으로 내려갈수록 기사 속 어휘가 바뀐다. “기억의 혼선”, “뒤늦게 등장한 목격자”, “기록되지 않은 공백”.',
+        '당신은 어느 순간부터 내용보다 문장 사이의 간격에 더 오래 시선을 둔다. 사진과 사진 사이, 단락과 단락 사이. 글로 설명되지 않은 부분들이 오히려 더 크게 보이기 시작한다. “그날 밤, 또 다른 사람이 현장 근처를 지나갔다는 증언이 있다.”라는 한 줄이 이상하게 오래 남는다.',
+        '스크롤을 조금 더 내리자, 흐릿한 CCTV 캡처가 화면 중앙에 떠오른다. 픽셀이 뭉개져 얼굴은 알아볼 수 없지만, 후드 모양과 어깨선, 걸음걸이 같은 것들이 묘하게 익숙하다. 말도 안 되는 생각이라는 걸 알면서도, 당신은 잠깐 동안 화면을 확대해서 들여다본다.',
+        '알림 센터에서는 계속 다른 신호들이 올라왔다가 사라진다. 친구의 메시지, 내일 마감인 과제 알림, 새로 올라온 추천 영상. 그 모든 것들은 잠시 화면 상단을 스쳐 지나가고, 다시 기사로 시선이 돌아온다. 현재의 소음들 사이에서, 여러 해 전의 사건 기록만이 이상하리만큼 조용하게 중심을 잡고 있다.',
+        '페이지 중간에는 당시 수사를 담당했던 형사의 인터뷰가 실려 있다. 그는 “모든 것을 다 기억하는 사람은 아무도 없다.”라고 말한다. 당신은 그 문장을 몇 번이고 다시 읽는다. “기억이 틀릴 수 있다”는 말이 아니라, “처음부터 완전한 기억 같은 건 없었다”는 말처럼 들린다.',
+        '화면 위쪽 탭 바에는 이미 여러 개의 관련 기사와 검색 결과가 열려 있다. 당신은 하나를 닫으려다가, 결국 그대로 둔 채 새로운 탭을 또 연다. 더 많이 알수록 두려워질 것 같으면서도, 지금 여기서 멈추면 오히려 더 불편한 감각이 남을 것 같은 기분. 이 기사를 끝까지 읽지 않으면 밤새 계속 생각날 것 같은 예감.',
+        '마지막 문단에는, 최근에야 언론에 공개된 새로운 증언이 짧게 요약되어 있다. “또 다른 목격자가 있었다. 그러나 그는 끝내 공식 진술을 하지 않았다.”라는 문장을 읽는 순간, 당신의 심장은 이유 없이 한 박자 빨리 뛴다. 누군가의 침묵이 사건의 방향을 바꿔 버렸을지도 모른다는 생각.',
+        '당신은 페이지 끝까지 내려가서도 브라우저를 닫지 못한 채 위아래로 천천히 스크롤을 반복한다. 이미 읽은 문단을 다시 읽고, 사진을 다시 확대했다가 줄인다. 마치 글자들 사이에서 아직 인쇄되지 않은 문장을, 말해지지 않은 증언 한 줄을 찾아내려는 사람처럼.',
+        '그리고 문득, 화면 구석에 아주 작은 문구가 눈에 들어온다. “이 사건에 대한 제보는 아래 연락처로…” 말의 끝을 읽기도 전에, 당신의 머릿속 어딘가에서 누군가의 목소리가 겹쳐 들린다. ‘그때 말했어야 하는 걸까, 아니면 지금이라도?’ — 첫 번째 선택은 이미 지나갔지만, 이야기는 이제 막 시작된 듯하다.'
+      ]
+    },
+
+    B:{
+      badge:'SCENE 1-B · 흘려보낸 밤',
+      title:'넘겨버린 탭, 지워지지 않는 점 하나',
+      lead:'당신은 기사 제목을 지나쳤다. 하지만 화면 어딘가에는 여전히 읽지 않은 것이 남아 있다.',
+      caption:'피드를 스크롤하는 손 — “읽지 않음(1)”',
+      paras:[
+        '손가락이 화면을 훑고 지나가자, 도살자 사건이라는 단어가 시야 밖으로 밀려난다. 피드는 다시 익숙한 것들로 채워진다. 짧은 밈 영상, 알고리즘이 골라 준 음악 클립, “지금 당장 봐야 할 다섯 가지” 같은 제목의 글들. 방금 전까지만 해도 시선을 붙잡았던 그 사건의 썸네일은, 아무 일도 아니었다는 듯 타임라인 아래로 가라앉는다.',
+        '당신은 일부러 아무렇지 않은 척 다음 카드로 넘어간다. 새로 올라온 팔로워의 스토리를 확인하고, 좋아요를 대충 누르고, 한참을 내려간 뒤에서야 잠깐 손을 멈춘다. 화면 맨 위, 알림 아이콘 옆에 작은 회색 점 하나가 여전히 남아 있다. “읽지 않음(1)”.',
+        '그 점을 없애려면, 언젠가 다시 돌아가서 그 기사를 눌러야 한다는 걸 안다. 그러나 지금은 아니다. 오늘은 피곤했고, 머릿속에는 이미 신경 써야 할 다른 것들이 너무 많다. 내일 있을 발표, 정리하지 못한 메모들, 읽다 만 소설책의 북마크. 당신은 그 작은 점 하나쯤은 대수롭지 않게 넘길 수 있다고 자신을 설득한다.',
+        '하지만 화면 밝기를 조금 낮추고 다시 피드를 훑어 내려가면서도, 방금 지나친 제목이 문장 일부만 잘린 상태로 자꾸 떠오른다. “…사건, 다시 떠오른 의혹들.” 그 뒤에 이어지는 단어들이 무엇이었는지 정확히 기억나지 않아서, 오히려 더 신경이 쓰인다. 기억나지 않는 부분이 하나 생겼다는 사실 자체가 머릿속에서 울린다.',
+        '당신은 뉴스 앱을 완전히 종료하지 않는다. 홈 화면으로 나갔다가도, 손가락이 습관처럼 다시 그 아이콘을 향해 움직인다. 그러다가 중간에 멈춰서, 다른 앱을 열어 버린다. 마치 스스로를 속이기라도 하듯, “지금은 그냥 잠깐 딴 생각이 필요할 뿐”이라고 합리화한다.',
+        '윈도우 상단에는 백그라운드에서 여전히 데이터가 로딩 중이라는 작은 표시가 깜빡인다. 어딘가에서는 누군가가 그 사건의 세부를 정리하고, 또 다른 누군가는 새로운 증언을 업로드하고 있을 것이다. 당신이 화면을 보지 않는 동안에도, 이야기는 계속 업데이트된다.',
+        '잠시 후, 피드에는 비슷한 사건을 묶어서 보여 주는 추천 카드가 슬며시 끼어든다. 썸네일 속 흐릿한 사진, “이야기의 또 다른 버전”이라는 자극적인 문구. 알고리즘은 당신이 방금 그 제목 앞에서 스크롤 속도를 살짝 늦췄다는 것만으로도 이미 관심을 감지했다.',
+        '당신은 그 카드를 일부러 보지 않은 척 빠르게 내려 보낸다. 하지만 스크롤이 끝에 다다를수록 피드의 내용은 점점 덜 중요해지고, 대신 방금 지나친 것들이 뒤에서 조용히 쌓인다. 읽지 않은 기사, 열지 않은 탭, 대답하지 않은 메시지들.',
+        '결국 당신은 휴대폰 화면을 뒤집어 책상 위에 내려놓는다. 불이 꺼진 화면 속에 희미하게 비친 자신의 얼굴이 잠깐 보였다가 사라진다. 눈을 감으면, 방금 스쳐 지나간 제목의 앞부분만 다시 떠오른다. “도살자 사건, 다시…” 그 다음 단어는 여전히 공백으로 남아 있다.',
+        '어쩌면 당신은 알고 있을지도 모른다. 지금 넘겨 버린 이 장면이, 언젠가 다른 선택지의 배경으로 다시 돌아올 거라는 걸. 오늘 읽지 않은 문장은, 다음 밤에 조금 다른 형태로 재생될 것이다. 그리고 그때도 역시, 선택지는 두 개뿐일 것이다. 열어 본다, 혹은 또 한 번 넘긴다.'
+      ]
+    }
+  };
+
+  const data = SCENE1[path] || SCENE1.A;
+
+  // ===== DOM 반영 =====
+  document.getElementById('badge').textContent  = data.badge;
+  document.getElementById('title').textContent  = data.title;
+  document.getElementById('lead').textContent   = data.lead;
+  document.getElementById('metaBranch').textContent = '분기: ' + path;
+  document.getElementById('caption').textContent    = data.caption;
+
+  const contentEl  = document.getElementById('content');
+  const pageInfoEl = document.getElementById('pageInfo');
+
+  // 문단을 3개씩 끊어서 페이지화
+  const PAGE_SIZE = 3;
+  const pages = [];
+  for(let i=0;i<data.paras.length;i+=PAGE_SIZE){
+    pages.push(data.paras.slice(i, i+PAGE_SIZE));
+  }
+  let pageIndex = 0;
+
+  function renderPage(){
+    const pageParas = pages[pageIndex] || [];
+    contentEl.innerHTML = pageParas.map(p => `<p>${p}</p>`).join('');
+    pageInfoEl.textContent = `페이지 ${pageIndex+1} / ${pages.length}`;
+  }
+
+  // 처음 페이지 렌더
+  renderPage();
+
+  const NEXT_URL = 'choice2.html';
+
+  function goNextScene(){
+    location.href = NEXT_URL + '?path=' + encodeURIComponent(path);
+  }
+
+  function advance(){
+    if(pageIndex < pages.length - 1){
+      pageIndex++;
+      renderPage();
+    }else{
+      // 마지막 페이지에서 한 번 더 → Choice2
+      goNextScene();
+    }
+  }
+
+  document.getElementById('sceneRoot').addEventListener('click', advance);
+
+  window.addEventListener('keydown', (e)=>{
+    const tag = (e.target.tagName||'').toLowerCase();
+    const typing = (tag === 'input' || tag === 'textarea' || e.target.isContentEditable);
+    if(typing) return;
+
+    if(e.key === ' ' || e.key === 'Enter'){
+      e.preventDefault();
+      advance();
+    }
+  });
+</script>
+
+</body>
+</html>

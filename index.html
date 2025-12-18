@@ -945,6 +945,39 @@
       }
     }
 
+  
+    /* ===== BGM 컨트롤 ===== */
+    .bgm-fab{
+      position:fixed;
+      left:16px;
+      bottom:16px;
+      z-index:55; /* preview(60~61)보다 아래, 메인 UI보다 위 */
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid var(--stroke);
+      background:rgba(10,10,10,.32);
+      color:#efe7d8;
+      cursor:pointer;
+      backdrop-filter: blur(2px);
+      box-shadow:0 10px 28px rgba(0,0,0,.35), 0 0 18px #ffe1a610;
+      transition:.18s;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .bgm-fab:hover{
+      transform:translateY(-1px);
+      border-color:#ffffff55;
+      background:rgba(0,0,0,.30);
+      box-shadow:0 14px 34px rgba(0,0,0,.42), 0 0 22px #ffe1a614;
+    }
+    .bgm-fab:focus{
+      outline:2px solid var(--focus);
+      outline-offset:2px;
+    }
+
   </style>
 </head>
 <body>
@@ -1208,6 +1241,15 @@
     </div>
   </section>
 
+  <!-- ===== BGM ===== -->
+  <audio id="bgm" preload="auto" loop>
+    <!-- ✅ 파일명을 bgm.mp3로 바꾸면 아래 src만 bgm.mp3로 바꾸면 됩니다 -->
+    <source src="bgm.mp3" type="audio/mpeg">
+  </audio>
+  <button id="bgmToggle" class="bgm-fab" type="button" aria-pressed="false" title="배경음악 토글">🔇 BGM OFF</button>
+
+
+
   <script>
     /* 패럴랙스 */
     const bg = document.querySelector('.bg');
@@ -1425,5 +1467,83 @@
       });
     }
   </script>
+
+  <script>
+    /* ===== BGM (PATCH) ===== */
+    (function(){
+      const bgm = document.getElementById('bgm');
+      const btn = document.getElementById('bgmToggle');
+      if(!bgm || !btn) return;
+
+      bgm.volume = 0.22;
+      bgm.muted = false;
+
+      const KEY = 'bgm_enabled';
+      let enabled = localStorage.getItem(KEY);
+      if (enabled === null) enabled = '0'; // 기본 OFF(원하면 '1'로 바꾸기)
+
+      function sync(){
+        const on = (enabled === '1') && !bgm.paused;
+        btn.textContent = on ? '🔊 BGM ON' : '🔇 BGM OFF';
+        btn.setAttribute('aria-pressed', String(on));
+      }
+
+      async function play(){
+        enabled = '1';
+        localStorage.setItem(KEY,'1');
+        try{ await bgm.play(); }catch(e){}
+        sync();
+      }
+      function pause(){
+        enabled = '0';
+        localStorage.setItem(KEY,'0');
+        try{ bgm.pause(); }catch(e){}
+        sync();
+      }
+
+      // 버튼 클릭 = 재생/정지
+      btn.addEventListener('click', async (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        if (bgm.paused) await play();
+        else pause();
+      });
+
+      // 버튼 말고 화면 아무데나 첫 터치/클릭 시, enabled=1이면 재생 시도(자동재생 정책 대응)
+      document.addEventListener('pointerdown', async (e)=>{
+        if (e.target.closest('#bgmToggle')) return;
+        if (enabled === '1' && bgm.paused) {
+          try{ await bgm.play(); }catch(_){}
+          sync();
+        }
+      }, { once:true });
+
+      // pvVideo가 있으면 영상 재생 시 BGM 멈춤(겹침 방지)
+      const pvVideo = document.getElementById('pvVideo');
+      let resumeAfterVideo = false;
+      if(pvVideo){
+        pvVideo.addEventListener('play', ()=>{
+          if(!bgm.paused){
+            resumeAfterVideo = true;
+            try{ bgm.pause(); }catch(_){}
+            sync();
+          }
+        });
+        const maybeResume = async ()=>{
+          if(resumeAfterVideo && enabled === '1'){
+            resumeAfterVideo = false;
+            try{ await bgm.play(); }catch(_){}
+            sync();
+          }
+        };
+        pvVideo.addEventListener('pause', maybeResume);
+        pvVideo.addEventListener('ended', maybeResume);
+      }
+
+      // 시작 상태 UI
+      sync();
+    })();
+  </script>
+
 </body>
 </html>

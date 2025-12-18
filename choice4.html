@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>CHOICE 4 — 네 번째 갈림길</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css"/>
+
+  <style>
+    :root{
+      --ink:#f5efe2;
+      --muted:#c8beb1;
+      --accent:#ffe1a6;
+      --stroke:#ffffff26;
+
+      --panel: rgba(12,12,12,.72);
+      --panel2: rgba(10,10,10,.56);
+      --shadow: 0 18px 60px rgba(0,0,0,.65);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:'Pretendard Variable',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+      color:var(--ink);
+      background:#000;
+      overflow:hidden;
+    }
+
+    /* 배경(이미지 있으면 선택4.png로) */
+    .bg{
+      position:fixed; inset:0;
+      background:
+        radial-gradient(90% 80% at 50% 20%, rgba(255,225,166,.10), rgba(0,0,0,0) 55%),
+        radial-gradient(80% 90% at 20% 0%, rgba(120,70,90,.18), rgba(0,0,0,0) 60%),
+        url('4번.jpg') center/cover no-repeat;
+      filter:brightness(.88) contrast(1.05) saturate(.98);
+      transform:scale(1.02);
+    }
+    .shade{
+      position:fixed; inset:0; pointer-events:none;
+      background:
+        radial-gradient(80% 80% at 50% 12%, rgba(0,0,0,.20), rgba(0,0,0,.86)),
+        linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.65));
+    }
+
+    main{
+      position:relative;
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      padding:22px clamp(18px,4vw,42px);
+      z-index:1;
+    }
+
+    /* 위쪽 메타는 "너무 위" 느낌 줄이려고 살짝만 */
+    .topMeta{
+      margin-top:4vh;
+      text-align:center;
+      opacity:.95;
+    }
+    .topMeta .eyebrow{
+      font-size:.78rem;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+    .topMeta .route{
+      display:inline-flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:center;
+      color:#d6cbbd;
+      font-size:.92rem;
+    }
+    .pill{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--stroke);
+      background:rgba(0,0,0,.35);
+      backdrop-filter:blur(4px);
+      box-shadow:0 0 0 1px rgba(0,0,0,.35) inset;
+    }
+
+    /* 아래쪽 선택 패널 */
+    .choicesWrap{
+      margin-top:auto;
+      display:flex;
+      justify-content:center;
+      padding-bottom:18px;
+    }
+    .choicesCard{
+      width:min(920px, 96vw);
+      border:1px solid var(--stroke);
+      border-radius:16px;
+      background:linear-gradient(180deg, var(--panel), var(--panel2));
+      backdrop-filter: blur(6px);
+      box-shadow: var(--shadow);
+      padding:16px 16px 14px;
+    }
+
+    /* 질문/설명: 선택지 바로 위 */
+    .questionBlock{
+      text-align:center;
+      padding:6px 10px 10px;
+    }
+    .qTitle{
+      margin:0 0 6px;
+      font-size:clamp(18px,2.1vw,22px);
+      letter-spacing:.01em;
+    }
+    .qDesc{
+      margin:0 auto;
+      max-width:760px;
+      color:var(--muted);
+      font-size:clamp(14px,1.6vw,16px);
+      line-height:1.8;
+    }
+
+    .timer{
+      height:7px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      border:1px solid #ffffff22;
+      overflow:hidden;
+      margin:10px 0 10px;
+    }
+    .timerFill{
+      height:100%;
+      background:linear-gradient(90deg,#ffe1a6,#ffcf78);
+      transform-origin:left;
+      transform:scaleX(1);
+      box-shadow:0 0 18px rgba(255,225,160,.22);
+    }
+
+    .choiceRow{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    .choice{
+      border:none;
+      border-radius:12px;
+      padding:14px 14px 14px;
+      cursor:pointer;
+      text-align:left;
+      color:var(--ink);
+      background:rgba(14,14,14,.85);
+      border:1px solid #ffffff20;
+      transition:.16s ease;
+      min-height:78px;
+    }
+    .choice strong{
+      display:block;
+      font-weight:700;
+      margin-bottom:6px;
+      letter-spacing:.01em;
+      font-size:1.02rem;
+    }
+    .choice span{
+      display:block;
+      color:var(--muted);
+      font-size:.92rem;
+      line-height:1.55;
+    }
+
+    .choice.primary{
+      background:rgba(32,24,12,.92);
+      border-color:rgba(255,225,150,.75);
+      box-shadow:0 0 0 1px rgba(0,0,0,.65) inset, 0 0 22px rgba(255,225,150,.18);
+    }
+    .choice:hover{
+      transform:translateY(-1px);
+      border-color:rgba(255,225,150,.55);
+      box-shadow:0 14px 34px rgba(0,0,0,.55);
+    }
+    .choice:focus{
+      outline:2px solid rgba(255,225,166,.85);
+      outline-offset:2px;
+    }
+    .choice.active{
+      border-color:rgba(255,225,166,.85);
+      box-shadow:0 0 0 1px rgba(0,0,0,.65) inset, 0 0 26px rgba(255,225,150,.26);
+    }
+
+    .hint{
+      margin:10px 2px 0;
+      text-align:center;
+      font-size:.82rem;
+      color:var(--muted);
+    }
+    .hint kbd{
+      font:12px/1 monospace;
+      padding:2px 6px;
+      border-radius:6px;
+      border:1px solid #ffffff38;
+      background:#0b0b0bcc;
+      color:#f5f0e2;
+      margin:0 1px;
+    }
+
+    @media (max-width:740px){
+      .choiceRow{grid-template-columns:1fr;}
+      .choicesCard{padding:14px 12px 12px;}
+      .topMeta{margin-top:3vh;}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg" aria-hidden="true"></div>
+  <div class="shade" aria-hidden="true"></div>
+
+  <main id="root">
+    <!-- 위쪽(가볍게) -->
+    <div class="topMeta">
+      <div class="eyebrow">CHOICE 4 · 네 번째 갈림길</div>
+      <div class="route">
+        <span class="pill" id="routeText">현재 루트 : -</span>
+        <span class="pill">제한 시간 : 10초</span>
+      </div>
+    </div>
+
+    <!-- 아래쪽 선택 카드 -->
+    <div class="choicesWrap">
+      <section class="choicesCard" aria-label="Choice 4 선택지">
+        <div class="questionBlock">
+          <h1 class="qTitle">누구의 목소리를 따를 것인가</h1>
+          <p class="qDesc">
+            화면은 조용하지만, 당신의 머릿속은 시끄럽다.
+            여기서의 선택은 ‘진실’이 아니라, <em>어떤 방향으로 기억을 편집할지</em>를 결정한다.
+          </p>
+        </div>
+
+        <div class="timer" aria-label="선택 제한시간">
+          <div class="timerFill" id="timerFill"></div>
+        </div>
+
+        <div class="choiceRow" role="group" aria-label="두 개의 선택지">
+          <button class="choice primary active" id="btnA" type="button">
+            <strong>A — 끝까지 밀어붙인다</strong>
+            <span>기록을 정리하고, 남겨진 공백을 당신의 손으로 채운다.</span>
+          </button>
+
+          <button class="choice" id="btnB" type="button">
+            <strong>B — 지금은 멈춘다</strong>
+            <span>닫을 것은 닫고, 이 밤을 ‘루프’로 만들지 않기로 한다.</span>
+          </button>
+        </div>
+
+        <p class="hint">
+          <kbd>←</kbd><kbd>→</kbd>로 선택 이동, <kbd>Enter</kbd>/<kbd>Space</kbd>로 확정
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    // ===== 루트(path) 누적 =====
+    const params = new URLSearchParams(location.search);
+    const basePath = (params.get('path') || '').trim(); // 예: "ABA" 같은 값
+    const safeBase = basePath || '---';
+    document.getElementById('routeText').textContent = '현재 루트 : ' + safeBase;
+
+    // 다음 파일(너 프로젝트 파일명에 맞춰서 여기만 바꾸면 됨)
+    const NEXT_SCENE = 'scene4.html';
+
+    function goNext(letter){
+      const prev = (basePath || '');
+      const nextPath = prev + (letter === 'B' ? 'B' : 'A'); // ✅ 누적
+      location.href = NEXT_SCENE + '?path=' + encodeURIComponent(nextPath);
+    }
+
+    // ===== 선택 UI(키보드/타이머) =====
+    const btnA = document.getElementById('btnA');
+    const btnB = document.getElementById('btnB');
+    const timerFill = document.getElementById('timerFill');
+
+    let active = 0; // 0:A, 1:B
+    let locked = false;
+
+    function setActive(i){
+      active = i;
+      btnA.classList.toggle('active', active === 0);
+      btnB.classList.toggle('active', active === 1);
+    }
+
+    function commit(){
+      if(locked) return;
+      locked = true;
+      const letter = active === 1 ? 'B' : 'A';
+      goNext(letter);
+    }
+
+    btnA.addEventListener('click', ()=>{ setActive(0); commit(); });
+    btnB.addEventListener('click', ()=>{ setActive(1); commit(); });
+
+    window.addEventListener('keydown', (e)=>{
+      const tag = (e.target.tagName||'').toLowerCase();
+      const typing = (tag === 'input' || tag === 'textarea' || e.target.isContentEditable);
+      if(typing) return;
+
+      if(e.key === 'ArrowLeft'){ e.preventDefault(); setActive(0); }
+      if(e.key === 'ArrowRight'){ e.preventDefault(); setActive(1); }
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); commit(); }
+    });
+
+    // ===== 10초 타이머 (끝나면 A 자동) =====
+    const DURATION = 10000;
+    const start = performance.now();
+
+    function tick(now){
+      if(locked) return;
+      const p = Math.min(1, (now - start) / DURATION);
+      timerFill.style.transform = `scaleX(${1 - p})`;
+      if(p >= 1){
+        setActive(0); // 기본 A
+        commit();
+        return;
+      }
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  </script>
+</body>
+</html>

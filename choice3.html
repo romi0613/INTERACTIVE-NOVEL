@@ -1,212 +1,309 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>선택 03 — 봉인된 기억</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CHOICE 3 — 세 번째 갈림길</title>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css"/>
 
-<style>
-  :root{
-    --ink:#fff;
-    --accent:#ffffff;
-    --stroke:#ffffff22;
-    --choice-bg: rgba(10,10,10,.72);
-    --choice-hover: rgba(18,18,18,.9);
+  <style>
+    :root{
+      --ink:#f5f0e6;
+      --muted:#cfc9bc;
+      --accent:#ffe1a6;
+      --card-bg:rgba(8,8,10,.92);
+      --card-stroke:#ffffff2b;
+      --stroke:#ffffff33;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:'Pretendard Variable',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+      color:var(--ink);
+      background:#000;
+      overflow:hidden;
+    }
 
-    /* 크기/간격 변수 */
-    --hud-pad: 48px;
-    --hud-maxw: min(1280px, 94vw);
-    --timer-h: 12px;
+    /* 배경 */
+    .bg{
+      position:fixed; inset:0;
+      background:url('선택3.png') center/cover no-repeat;
+      filter:brightness(.9) contrast(1.06);
+      transform:scale(1.02);
+      transform-origin:center;
+    }
+    .shade{
+      position:fixed; inset:0;
+      background:radial-gradient(85% 85% at 50% 18%,rgba(0,0,0,.15),rgba(0,0,0,.92));
+      pointer-events:none;
+    }
 
-    --choice-height: clamp(96px, 12vh, 150px);
-    --choice-font: clamp(20px, 2.6vw, 26px);
-    --choice-radius: 12px;
-    --choice-gap: 18px;
-    --choice-padx: 24px;
-  }
+    /* 중앙 레이아웃 */
+    .wrap{
+      position:relative;
+      z-index:1;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      padding:22vh 16px 40px;
+    }
 
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; background:#000; color:var(--ink);
-    font-family:'Pretendard Variable','Pretendard',system-ui,Apple SD Gothic Neo,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-    overflow:hidden;
-  }
+    .choice-shell{
+      max-width:900px;
+      margin:0 auto;
+      text-align:center;
+    }
 
-  /* ===== 화면(풀화면 배경) ===== */
-  .stage{position:fixed; inset:0; display:grid; place-items:stretch}
-  .bg{
-    position:absolute; inset:0;
-    background:url('선택3.png') center/cover no-repeat;
-    filter:contrast(1.02) saturate(.98) brightness(.94);
-    transform:scale(1.02);
-    animation:slowPan 26s ease-in-out infinite alternate;
-  }
-  @keyframes slowPan{
-    0%{transform:scale(1.04) translate(0,0)}
-    100%{transform:scale(1.04) translate(-0.8%, 0.6%)}
-  }
-  .vignette{position:absolute; inset:0; pointer-events:none;
-    background:
-      radial-gradient(120% 100% at 50% 100%, rgba(0,0,0,0) 48%, rgba(0,0,0,.6) 100%),
-      radial-gradient(100% 100% at 50% 50%, rgba(0,0,0,0) 60%, rgba(0,0,0,.5) 100%);
-  }
-  .scan{position:absolute; inset:0; pointer-events:none; mix-blend-mode:overlay; opacity:.08;
-    background:repeating-linear-gradient(180deg, rgba(255,255,255,.08) 0 2px, transparent 2px 4px);
-    animation:scan 9s linear infinite;
-  }
-  @keyframes scan{to{background-position-y:200px}}
+    .eyebrow{
+      font-size:11px;
+      letter-spacing:.20em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:4px;
+    }
+    .route{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:18px;
+    }
 
-  /* ===== 하단 선택 HUD ===== */
-  .hud{
-    position:absolute; left:0; right:0; bottom:0; z-index:2;
-    padding: var(--hud-pad) var(--hud-pad) calc(var(--hud-pad) + env(safe-area-inset-bottom));
-    background:linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.55) 28%, rgba(0,0,0,.75) 100%);
-    backdrop-filter:blur(2px);
-  }
+    h1{
+      margin:0 0 10px;
+      font-size:clamp(24px,3vw,32px);
+      letter-spacing:.02em;
+    }
 
-  /* 타이머 */
-  .timer-wrap{max-width: var(--hud-maxw); margin:0 auto 16px; position:relative;}
-  .timer{
-    height:var(--timer-h);
-    border:1px solid #ffffff33;
-    background:rgba(255,255,255,.06);
-    position:relative; overflow:hidden; border-radius:999px;
-  }
-  .timer > span{
-    position:absolute; left:0; right:0; top:0; bottom:0;
-    background:linear-gradient(90deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.10) 50%, rgba(255,255,255,.20) 100%);
-    opacity:.55; box-shadow:0 0 14px rgba(255,255,255,.25);
-    transform-origin:center center; transform:scaleX(1);
-  }
-  .tick{
-    position:absolute; right:0; top:calc(-26px - (var(--timer-h) - 10px));
-    font-size:12px; color:#e8f0ff; opacity:.9; letter-spacing:.04em;
-  }
+    .question-desc{
+      max-width:720px;
+      margin:0 auto 22px;
+      font-size:14px;
+      color:var(--muted);
+      line-height:1.8;
+    }
 
-  /* 선택지 바 */
-  .choices{
-    max-width: var(--hud-maxw); margin:0 auto;
-    display:grid; grid-template-columns:1fr 1fr; gap: var(--choice-gap);
-  }
-  .choice{
-    position:relative; display:flex; align-items:center; justify-content:center;
-    height: var(--choice-height); padding: 0 var(--choice-padx);
-    background:var(--choice-bg);
-    border:1px solid var(--stroke); border-radius: var(--choice-radius);
-    color:#eee; font-size: var(--choice-font); letter-spacing:.02em; cursor:pointer;
-    transition:.18s ease; text-transform:uppercase; outline:none;
-  }
-  .choice:hover, .choice:focus{background:var(--choice-hover); border-color:#ffffff55; transform:translateY(-1px)}
-  .choice.active{box-shadow:0 0 0 2px var(--accent) inset;}
-  .choice small{position:absolute; top:10px; left:12px; font-size:12px; opacity:.7}
-  .choice:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+    .underline{
+      width:260px;
+      max-width:60%;
+      height:2px;
+      margin:0 auto 32px;
+      border-radius:999px;
+      background:linear-gradient(90deg,transparent,rgba(255,225,166,.85),transparent);
+    }
 
-  /* 모바일 */
-  @media (max-width:720px){
-    .choices{ grid-template-columns: 1fr; }
-    .choice{ height: clamp(84px, 12vh, 140px); font-size: clamp(18px, 2.2vw, 22px); }
-  }
-</style>
+    /* 선택 영역 */
+    .choice-area{
+      max-width:900px;
+      margin:0 auto;
+    }
+
+    .timer{
+      width:100%;
+      max-width:640px;
+      height:6px;
+      margin:0 auto 14px;
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,.7);
+      background:rgba(0,0,0,.75);
+      overflow:hidden;
+    }
+    .timer-fill{
+      height:100%;
+      transform-origin:left;
+      background:linear-gradient(90deg,#ffe1a6,#ffcf78);
+      animation:shrink 10s linear forwards;
+    }
+    @keyframes shrink{
+      from{transform:scaleX(1)}
+      to{transform:scaleX(0)}
+    }
+
+    .choice-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      max-width:900px;
+      margin:0 auto;
+    }
+
+    .choice-card{
+      position:relative;
+      text-align:left;
+      padding:14px 16px 16px;
+      border-radius:10px;
+      border:1px solid var(--card-stroke);
+      background:var(--card-bg);
+      box-shadow:0 14px 40px rgba(0,0,0,.65);
+      cursor:pointer;
+      transition:.18s ease;
+    }
+    .choice-card.primary{
+      border-color:rgba(255,225,166,.95);
+      box-shadow:0 0 0 1px #000 inset,0 0 26px rgba(255,225,166,.38);
+      background:radial-gradient(circle at 0 0,rgba(255,225,166,.14),rgba(8,8,10,.96));
+    }
+    .choice-label{
+      display:inline-block;
+      font-size:11px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:4px;
+    }
+    .choice-title{
+      margin:0 0 6px;
+      font-size:15px;
+      font-weight:600;
+    }
+    .choice-body{
+      margin:0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    .choice-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 18px 46px rgba(0,0,0,.8);
+      border-color:rgba(255,225,166,.8);
+    }
+
+    .choice-card.active{
+      outline:2px solid var(--accent);
+      outline-offset:2px;
+    }
+
+    .footnote{
+      margin:16px auto 0;
+      max-width:720px;
+      font-size:11px;
+      color:#aca190;
+    }
+
+    @media (max-width:900px){
+      .wrap{
+        padding:16vh 14px 28px;
+      }
+      .choice-row{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-  <main class="stage" role="application" aria-label="선택 03 화면">
-    <div class="bg" aria-hidden="true"></div>
-    <div class="vignette" aria-hidden="true"></div>
-    <div class="scan" aria-hidden="true"></div>
+  <div class="bg" aria-hidden="true"></div>
+  <div class="shade" aria-hidden="true"></div>
 
-    <section class="hud">
-      <div class="timer-wrap">
-        <div class="timer" aria-label="남은 시간">
-          <span id="bar"></span>
-          <div class="tick"><span id="secs">10.0</span>s</div>
-        </div>
+  <div class="wrap">
+    <div class="choice-shell">
+      <div class="eyebrow" id="eyebrow">CHOICE 3 · 세 번째 갈림길</div>
+      <div class="route" id="routeLabel">현재 루트 : -</div>
+
+      <h1>언제 이 밤을 멈출 것인가?</h1>
+
+      <!-- 설명 문단: 선택지 바로 위쪽에 중앙 정렬 -->
+      <p class="question-desc">
+        지금까지의 클릭과 스크롤이 하나의 긴 기록으로 쌓여 있다.  
+        이제 남은 선택지는 두 가지뿐이다. 이 이야기를 더 깊이 따라가 마지막 조각까지 맞춰 보거나,
+        오늘 밤을 여기서 끊고 다시 평범한 시간으로 돌아가거나.
+      </p>
+
+      <div class="underline"></div>
+    </div>
+
+    <section class="choice-area">
+      <div class="timer">
+        <div class="timer-fill" id="timerFill"></div>
       </div>
 
-      <div class="choices" role="listbox" aria-label="선택지">
-        <button class="choice active" id="optA" role="option" aria-selected="true">
-          <small>선택 A</small>
-          금고 다이얼을 끝까지 돌려 기억을 연다
+      <div class="choice-row">
+        <!-- A 선택 -->
+        <button class="choice-card primary" data-branch="A">
+          <div class="choice-label">선택 A</div>
+          <h2 class="choice-title">끝까지 파고들기</h2>
+          <p class="choice-body">
+            남은 기사와 기록, 인터뷰와 영상까지 모두 훑어본다.
+            화면 밖으로 나가더라도 머릿속에서는 계속 이 사건의 타임라인을 정리하게 될 것이다.
+          </p>
         </button>
-        <button class="choice" id="optB" role="option" aria-selected="false">
-          <small>선택 B</small>
-          손을 떼고 돌아선 채, 봉인된 채로 둔다
+
+        <!-- B 선택 -->
+        <button class="choice-card" data-branch="B">
+          <div class="choice-label">선택 B</div>
+          <h2 class="choice-title">오늘 선에서 끊어두기</h2>
+          <p class="choice-body">
+            탭을 정리하고 기기를 끈다. 모든 것을 이해하지 못한 채로 남더라도,
+            이 밤을 또 하나의 루프로 만들지 않겠다고 마음속으로 선을 그어 둔다.
+          </p>
         </button>
       </div>
+
+      <p class="footnote">
+        ※ 데모에서는 어떤 선택을 눌러도 다음 SCENE 3으로 이어지지만,<br />
+        실제 작품에서는 이 지점의 선택이 도달하는 엔딩을 크게 바꿔 놓습니다.
+      </p>
     </section>
-  </main>
+  </div>
 
-<script>
-  /* ===== 설정 ===== */
-  const DURATION = 10000;      // 10초
-  const AUTO_DEFAULT = 'A';    // 시간초과 기본 선택
+  <script>
+    // 현재까지의 path (예: "AA", "AB", "BA", "BB")
+    const params   = new URLSearchParams(location.search);
+    const basePath = params.get('path') || '';
 
-  /* ===== 라우팅: 다음 분기/허브로 복귀 (+ 선택값) ===== */
-  function route(which){
-    // 필요하면 파일명/쿼리 바꿔서 사용하기
-    location.href = `Start.html?scene=3&choice=${which}`;  // 'A' | 'B'
-  }
+    // 루트 라벨 처리
+    const routeLabel = document.getElementById('routeLabel');
+    let group = '혼합 루트';
+    if (basePath.startsWith('A')) group = 'A 계열';
+    else if (basePath.startsWith('B')) group = 'B 계열';
+    routeLabel.textContent = '현재 루트 : ' + group;
 
-  /* ===== 타이머 ===== */
-  const bar  = document.getElementById('bar');
-  const secs = document.getElementById('secs');
-  const t0   = performance.now();
-  let raf = null, finished = false, focused = 'A';
+    // 선택 카드들
+    const cards = document.querySelectorAll('.choice-card');
+    let activeIndex = 0;
+    cards[activeIndex].classList.add('active');
 
-  function tick(t){
-    if(finished) return;
-    const p = Math.min(1, (t - t0) / DURATION);
-    const remain = Math.max(0, DURATION - (t - t0));
-    bar.style.transform = `scaleX(${1 - p})`;
-    secs.textContent = (remain/1000).toFixed(1);
-    if(p >= 1){ choose(AUTO_DEFAULT); return; }
-    raf = requestAnimationFrame(tick);
-  }
-  raf = requestAnimationFrame(tick);
-
-  /* ===== 선택지 ===== */
-  const optA = document.getElementById('optA');
-  const optB = document.getElementById('optB');
-
-  function setFocus(which){
-    focused = which;
-    if(which==='A'){
-      optA.classList.add('active'); optA.setAttribute('aria-selected','true');
-      optB.classList.remove('active'); optB.setAttribute('aria-selected','false');
-      optA.focus({preventScroll:true});
-    }else{
-      optB.classList.add('active'); optB.setAttribute('aria-selected','true');
-      optA.classList.remove('active'); optA.setAttribute('aria-selected','false');
-      optB.focus({preventScroll:true});
+    function goNext(branch){
+      const nextPath = (basePath || '') + branch;       // 예: "AA" + "B" = "AAB"
+      location.href = 'scene3.html?path=' + encodeURIComponent(nextPath);
     }
-  }
 
-  function choose(which){
-    if(finished) return;
-    finished = true; cancelAnimationFrame(raf);
-    const el = which==='A'?optA:optB;
-    el.style.boxShadow = '0 0 0 2px var(--accent) inset, 0 0 24px #000';
-    el.style.transform = 'translateY(-2px) scale(1.01)';
-    setTimeout(()=>route(which), 220);
-  }
+    // 클릭 이벤트
+    cards.forEach((card,idx)=>{
+      card.addEventListener('click', ()=>{
+        activeIndex = idx;
+        cards.forEach(c=>c.classList.remove('active'));
+        card.classList.add('active');
+        goNext(card.dataset.branch || 'A');
+      });
+    });
 
-  optA.addEventListener('click', ()=>choose('A'));
-  optB.addEventListener('click', ()=>choose('B'));
-  optA.addEventListener('mouseenter',()=>setFocus('A'));
-  optB.addEventListener('mouseenter',()=>setFocus('B'));
+    // 키보드 ← → Enter
+    window.addEventListener('keydown', (e)=>{
+      const tag = (e.target.tagName||'').toLowerCase();
+      const typing = (tag === 'input' || tag === 'textarea' || e.target.isContentEditable);
+      if (typing) return;
 
-  // ←/→ 포커스, Space/Enter 확정
-  window.addEventListener('keydown', (e)=>{
-    if(finished) return;
-    if(['ArrowLeft','a','A','1'].includes(e.key)){ e.preventDefault(); setFocus('A'); }
-    if(['ArrowRight','d','D','2'].includes(e.key)){ e.preventDefault(); setFocus('B'); }
-    if(e.key===' '||e.key==='Enter'){ e.preventDefault(); choose(focused); }
-  }, {passive:false});
+      if (e.key === 'ArrowLeft'){
+        e.preventDefault();
+        activeIndex = 0;
+        cards.forEach(c=>c.classList.remove('active'));
+        cards[0].classList.add('active');
+      } else if (e.key === 'ArrowRight'){
+        e.preventDefault();
+        activeIndex = 1;
+        cards.forEach(c=>c.classList.remove('active'));
+        cards[1].classList.add('active');
+      } else if (e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        const card = cards[activeIndex] || cards[0];
+        goNext(card.dataset.branch || 'A');
+      }
+    });
 
-  // 포커스 접근성
-  optA.addEventListener('focus', ()=>setFocus('A'));
-  optB.addEventListener('focus', ()=>setFocus('B'));
-</script>
+    // 10초 지나면 기본 선택(A) 자동 진행
+    setTimeout(()=>{ goNext('A'); }, 10000);
+  </script>
 </body>
 </html>

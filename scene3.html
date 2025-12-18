@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>SCENE 3 — 마지막 장면</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css"/>
+
+<style>
+  :root{
+    --ink:#f5f0e6;
+    --ink-dim:#cfc5b8;
+    --bg:#04060a;
+    --stroke:#ffffff22;
+    --accent:#ffe1a6;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:radial-gradient(circle at 0 0,#25303f 0,#04060a 40%,#020205 100%);
+    color:var(--ink);
+    font-family:'Pretendard Variable',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+  }
+
+  .stage{
+    height:100vh;
+    display:flex;
+  }
+
+  .left{
+    width:45%;
+    padding:6vh clamp(20px,4vw,40px);
+    border-right:1px solid var(--stroke);
+    background:linear-gradient(180deg,#0f1118,#06060a);
+    overflow-y:auto;
+  }
+
+  .right{
+    width:55%;
+    position:relative;
+    overflow:hidden;
+    background:#000;
+  }
+
+  .badge{
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    margin-bottom:6px;
+  }
+  h1{
+    margin:0 0 8px;
+    font-size:clamp(22px,3vw,30px);
+  }
+  .lead{
+    margin:0 0 16px;
+    font-size:14px;
+    color:var(--ink-dim);
+  }
+  .meta{
+    font-size:12px;
+    color:#b9b0a2;
+    margin-bottom:18px;
+  }
+  .meta span+span{margin-left:12px;}
+  hr{
+    border:none;
+    border-top:1px solid var(--stroke);
+    margin:12px 0 18px;
+  }
+
+  .content{
+    font-size:16px;
+    line-height:1.9;
+  }
+  .content p{margin:0 0 1em;}
+
+  .hint{
+    margin-top:14px;
+    font-size:12px;
+    color:var(--ink-dim);
+  }
+
+  /* 오른쪽 이미지 패널 */
+  .hero{
+    position:absolute; inset:0;
+  }
+  .hero-img{
+    position:absolute; inset:0;
+    background:url('선택3.png') center/cover no-repeat;
+    filter:brightness(.9) contrast(1.06);
+  }
+  .hero::after{
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(80% 80% at 50% 50%,transparent 55%,rgba(0,0,0,.75));
+  }
+  .caption{
+    position:absolute;
+    left:18px; bottom:16px;
+    padding:8px 10px;
+    border-radius:8px;
+    border:1px solid var(--stroke);
+    background:#090909c5;
+    font-size:12px;
+    color:#e7decf;
+    backdrop-filter:blur(3px);
+  }
+
+  @media (max-width:900px){
+    .stage{
+      flex-direction:column;
+      height:auto;
+    }
+    .left,.right{
+      width:100%;
+      height:50vh;
+    }
+    .left{
+      padding:18px 16px 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="sceneRoot">
+  <!-- LEFT: 텍스트 -->
+  <section class="left">
+    <div class="badge" id="badge">SCENE 3</div>
+    <h1 id="title">제목 자리</h1>
+    <p class="lead" id="lead">리드 문장 자리</p>
+
+    <div class="meta">
+      <span id="metaBranch">루트: -</span>
+      <span id="metaEnding">도달 예정 엔딩: -</span>
+    </div>
+
+    <hr/>
+
+    <div class="content" id="content"></div>
+
+    <p class="hint">
+      화면을 클릭하거나 Space / Enter 키를 누르면<br>
+      해당 엔딩 페이지로 이동합니다.
+    </p>
+  </section>
+
+  <!-- RIGHT: 이미지 -->
+  <section class="right" aria-hidden="true">
+    <div class="hero">
+      <div class="hero-img"></div>
+      <div class="caption" id="caption">마지막 선택이 지나간 자리</div>
+    </div>
+  </section>
+</div>
+
+<script>
+  // 최종 루트: AAA, AAB, ABA, ABB, BAA, BAB, BBA, BBB
+  const params   = new URLSearchParams(location.search);
+  const fullPath = (params.get('path') || 'AAA').toUpperCase();
+
+  // 어떤 루트가 어떤 엔딩으로 가는지 매핑
+  const ENDING_ROUTE = {
+    'AAA': { file:'ending_A.html', key:'A' }, // 기억의 조각 완성
+    'AAB': { file:'ending_B.html', key:'B' }, // 끝나지 않는 밤
+    'ABA': { file:'ending_C.html', key:'C' },
+    'ABB': { file:'ending_B.html', key:'B' },
+    'BAA': { file:'ending_C.html', key:'C' },
+    'BAB': { file:'ending_B.html', key:'B' },
+    'BBA': { file:'ending_C.html', key:'C' },
+    'BBB': { file:'ending_B.html', key:'B' }
+  };
+
+  // 기본값: 맵에 없으면 B 엔딩으로
+  const route = ENDING_ROUTE[fullPath] || { file:'ending_B.html', key:'B' };
+
+  // 엔딩 분위기별 마지막 장면 텍스트
+  const SCENE3 = {
+    A:{
+      badge:'SCENE 3-A · 기억의 조각이 맞춰지는 순간',
+      title:'문장의 끝에서 점 하나를 찍는 일',
+      lead:'당신은 도망치지 않기로 했다. 이 이야기를 끝까지 따라가 보기로.',
+      caption:'새벽 직전의 방 — “모든 탭이 한 화면에 겹쳐질 때”',
+      paras:[
+        '화면에는 이제 더 이상 새로운 정보가 남아 있지 않다. 당신이 열 수 있는 탭은 거의 다 열려 있고, 기사의 꼬리표를 따라 들어간 포럼과 오래된 게시글들, 심지어 그 시절 방송을 녹화해 둔 사람의 흐릿한 업로드까지 모두 훑어 본 뒤다.',
+        '그럼에도 불구하고, 당신의 시선은 여전히 같은 몇 문장 위를 맴돈다. “또 다른 목격자”, “증언이 뒤늦게 등장했다”, “기억이 뒤섞여 있었다는 주장”. 기사는 사건을 설명하려 애쓰지만, 당신은 점점 사건보다 “기억”이라는 단어에 더 오래 머무르게 된다.',
+        '어느 순간, 화면 속 문장과 머릿속 장면이 정확히 겹친다. 당신이 스스로 지어낸 상상이 아니라, 분명히 어딘가에서 실제로 본 적이 있는 장면이라는 확신이 든다. 밤길의 냄새, 숨을 고르는 소리, 누군가가 뒤돌아보던 순간의 공기까지.',
+        '당신은 알게 된다. 이 이야기를 지금까지 “남의 이야기”라는 거리에서 소비해 왔다고 믿었지만, 사실은 그때부터 이미 관여하고 있었다는 사실을. 말하지 않고 지나친 것들, 제때 기록되지 못한 것들, 그 모든 공백이 이 사건의 일부였다는 사실을.',
+        '커서가 한 줄 아래로 내려간다. 당신은 새 창을 열어, 지금까지의 타임라인을 차분히 정리하기 시작한다. 누군가에게 보여 주기 위한 글이 아니라, 스스로에게 다시 읽히기 위한 문장을 쌓는다. 지우고, 고치고, 다시 쓰면서도 손은 망설이지 않는다.',
+        '수많은 탭 중 일부를 조용히 닫으면서도, 당신은 이제 알고 있다. 창을 닫는다고 해서, 이 밤이 없던 일이 되는 것은 아니라는 걸. 오히려 지금 찍는 이 점 하나가, 이야기를 완전히 다른 방향으로 연결하게 될 거라는 걸.',
+        '그리고 마지막 엔터를 치는 순간, 당신은 아주 작은 안도감을 느낀다. “이제, 최소한 아무것도 모르는 척 하지는 않겠다.” 그렇게 다짐하는 목소리가, 화면 밖 어딘가에서 조용히 울린다.'
+      ]
+    },
+    B:{
+      badge:'SCENE 3-B · 반복되는 밤의 한가운데',
+      title:'다음은 조금 다르게 될 거라는 착각',
+      lead:'당신은 창을 닫았다가도, 습관처럼 다시 열어 본다. 밤과 새벽의 경계가 흐려진다.',
+      caption:'모니터 앞 — “로드 중…”이라는 문장이 계속 깜빡일 때',
+      paras:[
+        '화면에는 익숙한 로딩 아이콘이 돌고 있다. 사실 그 페이지는 금방 뜰 것이고, 당신도 그것을 안다. 하지만 로딩 원이 한 바퀴를 도는 동안, 당신은 또 다른 탭을 열어 비슷한 키워드를 검색한다. 결말을 이미 알고 있는 영화의 줄거리를 다시 읽는 사람처럼.',
+        '새로 고침, 뒤로 가기, 다시 검색, 다른 사람의 후기, “정리해 드립니다”라는 제목의 영상, 그리고 그 영상 아래 달린 서로 다른 주장들. 당신은 클릭 몇 번만으로 전혀 다른 버전의 이야기를 연속해서 소비할 수 있다.',
+        '그럼에도 이상한 것은, 아무리 많은 버전을 읽어도 마음속에서 어떤 결론도 “이제 이게 진짜야”라는 납득으로 굳어지지 않는다는 점이다. 오히려 버전이 늘어날수록, 진짜는 더 멀리 도망가는 것처럼 느껴진다.',
+        '눈을 잠깐 감았다 뜨면, 브라우저의 탭 배열이 방금 전과 살짝 달라져 있다. 어디까지 읽었는지, 어떤 문단에서 멈췄는지 헷갈리기 시작한다. 화면 상단의 시간은 분명 앞으로 가고 있는데, 생각은 같은 자리에서 계속 맴도는 기분이다.',
+        '당신은 의자에서 몸을 한 번 일으켰다가, 다시 앉는다. 물을 마시고, 창문을 열어 바람을 쐬고, 잠깐 딴짓을 하다가도 어느새 똑같은 화면 앞에 돌아와 있는 자신을 발견한다. 탭은 조금 정리되었지만, 머릿속의 탭은 더 늘어났다.',
+        '“이번에는 진짜 마지막.” 그렇게 마음속으로 말하면서도, 손가락은 자동으로 스크롤 제스처를 그리고 있다. 페이지 맨 아래까지 내려가면, 비슷한 사건들을 묶어서 보여 주는 추천 링크가 또 기다리고 있을 것이다.',
+        '당신은 어렴풋이 안다. 이 밤이 정확히 언제 끝났는지 나중에 기억하지 못할 거라는 것을. 하지만 이 화면의 조합, 이때의 조명과 소리, 이 섞여 버린 링크들의 배열은 언젠가 또 다른 밤에 다시 재생될 것이다. 조금 다른 버전으로, 그러나 거의 똑같이.'
+      ]
+    },
+    C:{
+      badge:'SCENE 3-C · 마지막으로 전원을 끄기 전',
+      title:'이야기를 덮는다는 것의 무게',
+      lead:'당신은 더 이상 이 이야기를 “열어 보는 것”만으로는 끝나지 않는다는 사실을 깨닫는다.',
+      caption:'어두운 방 — “전원 끄기” 확인창이 떠 있는 화면',
+      paras:[
+        '화면에는 작은 확인창이 떠 있다. “정말 종료하시겠습니까?”라는 문장과 함께, [확인]과 [취소] 버튼이 나란히 붙어 있다. 손가락 한 번이면 어느 쪽이든 선택할 수 있지만, 당신은 이상하게도 그 작은 창 앞에서 오래 머문다.',
+        '지금까지 열었던 수많은 탭과 기사, 영상과 댓글들이 한순간에 사라지는 것은 아니다. 프로그램을 종료해도, 브라우저를 닫아도, 기록은 남는다. 그러나 적어도 “오늘은 여기까지”라는 선을 그을 수는 있을 것이다.',
+        '당신은 생각한다. 이 이야기를 계속 쫓아가면, 언젠가 정말로 사건의 완전한 그림을 보게 될까? 아니면, 그 사이에서 자신의 하루와 감정과 시간을 끝없이 소모하게 될 뿐일까. 어느 쪽이든, 대가를 치르는 쪽은 결국 화면 앞에 앉아 있는 자신이다.',
+        '잠깐 동안, 당신은 전원을 끄지 않고 화면만 뒤돌려 놓는 선택을 상상해 본다. 모니터의 빛은 벽을 희미하게 비추고, 소리는 이어폰 안에서만 울린다. 그렇게 시간을 버티다 보면, 자연스럽게 잠이 오겠지. 그리고 내일 아침, 아무 일도 없었던 것처럼 다시 전원을 켜겠지.',
+        '하지만 오늘만큼은 그 패턴을 반복하고 싶지 않다는 마음이 든다. 이 밤을 “또 하나의 루프”로 남겨 두는 대신, 분명하게 끝나는 한 줄로 기록하고 싶다. 설령 그 끝이 완벽한 이해도, 깔끔한 결말도 아닌 채로 남는다 하더라도.',
+        '당신은 결국 [확인] 버튼에 커서를 올린다. 화면 밝기가 조금 줄어들고, 방 안의 어둠이 서서히 제자리를 찾아온다. 마지막으로 비친 것은 책상 위에 놓인 기기들의 무늬, 얼룩진 스크린, 그리고 당신 자신의 흐릿한 반사였다.',
+        '전원이 완전히 꺼진 뒤에도 눈앞에는 잠시 화면 잔상이 남아 있는 것처럼 흔들린다. 그러나 그 잔상이 사라지는 순간, 당신은 알게 된다. 이 이야기를 덮는다는 것은 “도망치는 것”이 아니라, 어쩌면 지금의 자신을 지키기 위한 또 하나의 선택일지도 모른다는 사실을.'
+      ]
+    }
+  };
+
+  const data = SCENE3[route.key] || SCENE3.B;
+
+  // 텍스트 반영
+  document.getElementById('badge').textContent  = data.badge;
+  document.getElementById('title').textContent  = data.title;
+  document.getElementById('lead').textContent   = data.lead;
+  document.getElementById('metaBranch').textContent = '루트: ' + fullPath;
+  document.getElementById('metaEnding').textContent = '도달 예정 엔딩: ENDING ' + route.key;
+  document.getElementById('caption').textContent    = data.caption;
+
+  const contentEl = document.getElementById('content');
+  contentEl.innerHTML = data.paras.map(p => `<p>${p}</p>`).join('');
+
+  // 엔딩 페이지로 이동
+  function goEnding(){
+    location.href = route.file + '?path=' + encodeURIComponent(fullPath);
+  }
+
+  document.getElementById('sceneRoot').addEventListener('click', goEnding);
+
+  window.addEventListener('keydown', (e)=>{
+    const tag = (e.target.tagName||'').toLowerCase();
+    const typing = (tag === 'input' || tag === 'textarea' || e.target.isContentEditable);
+    if(typing) return;
+
+    if(e.key === ' ' || e.key === 'Enter'){
+      e.preventDefault();
+      goEnding();
+    }
+  });
+</script>
+
+</body>
+</html>

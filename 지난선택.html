@@ -385,10 +385,7 @@
     font-size:.9rem;
     padding:4px 6px;
     border-radius:8px;
-    transition:
-      background .18s ease,
-      transform .15s ease,
-      box-shadow .18s ease;
+    transition: background .18s ease, transform .15s ease, box-shadow .18s ease;
   }
 
   .ending-item .pill{
@@ -399,10 +396,7 @@
     background:#00000080;
   }
 
-  /* ✅ 해금된 엔딩(예: 엔딩 A)에만 호버 효과 */
-  .ending-item.done{
-    cursor:pointer;
-  }
+  .ending-item.done{ cursor:pointer; }
   .ending-item.done:hover{
     background:rgba(255,233,180,.06);
     transform:translateX(4px);
@@ -415,13 +409,8 @@
     color:var(--accent);
   }
 
-  .ending-item.locked{
-    opacity:.6;
-  }
-  .ending-item.locked .title{
-    letter-spacing:.06em;
-  }
-
+  .ending-item.locked{ opacity:.6; }
+  .ending-item.locked .title{ letter-spacing:.06em; }
 
   /* ===== 엔딩 모음집 버튼 ===== */
   .ending-link-wrap{
@@ -443,12 +432,33 @@
     align-items:center;
     gap:6px;
   }
-  .ending-btn span.icon{
-    font-size:.9rem;
-  }
+  .ending-btn span.icon{ font-size:.9rem; }
   .ending-btn:hover{
     background:var(--accent);
     color:#000;
+  }
+
+  /* ===== Locked/Unlocked 공통 ===== */
+  .card[role="button"]{ outline: none; }
+  .card:not(.locked){ cursor:pointer; }
+
+  .card:not(.locked) .lock-badge,
+  .card:not(.locked) .center-lock{ display:none !important; }
+
+  .card.locked{ cursor:not-allowed; }
+
+  @keyframes cardShake{
+    0%,100%{ transform:translateX(0); }
+    20%{ transform:translateX(-6px); }
+    40%{ transform:translateX(6px); }
+    60%{ transform:translateX(-4px); }
+    80%{ transform:translateX(4px); }
+  }
+  .card.shake{ animation:cardShake .35s ease; }
+
+  .card.open{
+    box-shadow: 0 16px 40px rgba(0,0,0,.55);
+    transform: translateY(-2px);
   }
 </style>
 </head>
@@ -470,11 +480,11 @@
     <button class="carousel-nav prev" aria-label="이전 선택 보기">‹</button>
 
     <div class="cards-viewport">
-      <!-- ===== 페이지 0 ===== -->
+      <!-- ===== 페이지 0 : 선택 1~3 ===== -->
       <section class="cards-page active" data-page="0">
         <!-- 선택 1 -->
         <section class="choice-wrap">
-          <article class="card" data-story="branch1">
+          <article class="card" data-story="branch1" role="button">
             <div class="bg" style="background-image:url('로고.jpg');"></div>
 
             <div class="lock-badge">
@@ -499,7 +509,7 @@
 
         <!-- 선택 2 -->
         <section class="choice-wrap">
-          <article class="card locked" data-story="branch2" aria-disabled="true">
+          <article class="card locked" data-story="branch2" aria-disabled="true" role="button">
             <div class="bg" style="background-image:url('선택2.png');"></div>
 
             <div class="lock-badge">
@@ -524,7 +534,7 @@
 
         <!-- 선택 3 -->
         <section class="choice-wrap">
-          <article class="card locked" data-story="branch3" aria-disabled="true">
+          <article class="card locked" data-story="branch3" aria-disabled="true" role="button">
             <div class="bg" style="background-image:url('선택3.png');"></div>
 
             <div class="lock-badge">
@@ -543,36 +553,42 @@
           <div class="choice-caption">
             <div class="kicker">선택 3</div>
             <div class="title">봉인된 기억</div>
-            <div class="desc">과거와 메타 요소를 다루는 최종 분기입니다.</div>
+            <div class="desc">과거와 메타 요소를 다루는 최종 전 분기입니다.</div>
           </div>
         </section>
       </section>
 
-      <!-- ===== 페이지 1 (예시) ===== -->
+      <!-- ===== 페이지 1 : 선택 4~6 ===== -->
       <section class="cards-page" data-page="1">
+        <!-- 선택 4 (✅ 선택3과 같은 잠금 구조로 통일) -->
         <section class="choice-wrap">
-          <article class="card locked" data-story="branch4" aria-disabled="true">
-            <div class="bg" style="background-image:url('choice4.jpg');"></div>
+          <article class="card locked" data-story="branch4" aria-disabled="true" role="button">
+            <div class="bg" style="background-image:url('4번.jpg');"></div>
+
             <div class="lock-badge">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z"/></svg>
               잠금
             </div>
+
             <div class="center-lock">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z"/></svg>
-              <div class="lock-text">추가 분기 — 준비 중입니다.</div>
+              <div class="lock-text">잠금됨 - 아직 이 분기는 열리지 않았습니다.</div>
             </div>
+
             <div class="badge">0/1</div>
             <div class="hover-label"><span>줄거리 + 엔딩 보기</span></div>
           </article>
+
           <div class="choice-caption">
             <div class="kicker">선택 4</div>
-            <div class="title">미정의 분기</div>
-            <div class="desc">추가 시나리오를 위한 자리입니다.</div>
+            <div class="title">누구의 목소리를 따를 것인가?</div>
+            <div class="desc">최종선택을 위한 분기입니다。</div>
           </div>
         </section>
 
+        <!-- 선택 5 -->
         <section class="choice-wrap">
-          <article class="card locked" data-story="branch5" aria-disabled="true">
+          <article class="card locked" data-story="branch5" aria-disabled="true" role="button">
             <div class="bg" style="background-image:url('choice5.jpg');"></div>
             <div class="lock-badge">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z"/></svg>
@@ -592,8 +608,9 @@
           </div>
         </section>
 
+        <!-- 선택 6 -->
         <section class="choice-wrap">
-          <article class="card locked" data-story="branch6" aria-disabled="true">
+          <article class="card locked" data-story="branch6" aria-disabled="true" role="button">
             <div class="bg" style="background-image:url('choice6.jpg');"></div>
             <div class="lock-badge">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z"/></svg>
@@ -686,9 +703,27 @@ const STORY_BRANCHES = {
     ],
     endings:['ENDING_A','ENDING_C','ENDING_D']
   },
-  branch4:{title:'미정의 분기',meta:'추가 분기 · 준비 중',cover:'choice4.jpg',paragraphs:['추가 시나리오를 위해 비워둔 자리입니다.'],endings:['ENDING_A']},
-  branch5:{title:'미정의 분기 2',meta:'추가 분기 · 준비 중',cover:'choice5.jpg',paragraphs:['나중에 내용을 채워 넣을 수 있습니다.'],endings:['ENDING_B']},
-  branch6:{title:'미정의 분기 3',meta:'추가 분기 · 준비 중',cover:'choice6.jpg',paragraphs:['필요 없다면 이 분기는 삭제해도 됩니다.'],endings:['ENDING_D']}
+  branch4:{
+    title:'미정의 분기',
+    meta:'추가 분기 · 준비 중',
+    cover:'choice4.jpg',
+    paragraphs:['추가 시나리오를 위해 비워둔 자리입니다.'],
+    endings:['ENDING_A']
+  },
+  branch5:{
+    title:'미정의 분기 2',
+    meta:'추가 분기 · 준비 중',
+    cover:'choice5.jpg',
+    paragraphs:['나중에 내용을 채워 넣을 수 있습니다.'],
+    endings:['ENDING_B']
+  },
+  branch6:{
+    title:'미정의 분기 3',
+    meta:'추가 분기 · 준비 중',
+    cover:'choice6.jpg',
+    paragraphs:['필요 없다면 이 분기는 삭제해도 됩니다.'],
+    endings:['ENDING_D']
+  }
 };
 
 let VIEW_MODE = 'normal';
@@ -716,9 +751,8 @@ let pages, btnPrev, btnNext;
 
 function updateCarousel(){
   if(!pages || !pages.length) return;
-  pages.forEach((p,idx)=>{
-    p.classList.toggle('active', idx === currentPage);
-  });
+  pages.forEach((p,idx)=> p.classList.toggle('active', idx === currentPage));
+
   if(pages.length <= 1){
     btnPrev.classList.add('disabled');
     btnNext.classList.add('disabled');
@@ -749,6 +783,13 @@ function isEndingUnlocked(id){
   if(VIEW_MODE === 'open') return true;
   if(VIEW_MODE === 'locked') return false;
   return localStorage.getItem('ending:' + id) === '1';
+}
+
+/* 잠김 클릭 -> 흔들림 */
+function shakeCard(card){
+  card.classList.remove('shake');
+  void card.offsetWidth; // reflow
+  card.classList.add('shake');
 }
 
 /* 분기 모달 열기 */
@@ -803,8 +844,9 @@ function updateCardBadges(){
   document.querySelectorAll('.card').forEach(card=>{
     const key = card.dataset.story;
     if(!key) return;
+
     const branch = STORY_BRANCHES[key];
-    const badge = card.querySelector('.badge');
+    const badge  = card.querySelector('.badge');
 
     if(branch && badge && branch.endings){
       const total = branch.endings.length;
@@ -812,26 +854,34 @@ function updateCardBadges(){
       badge.textContent = `${cleared}/${total}`;
     }
 
-    if(VIEW_MODE === 'open'){
+    // 상태 결정
+    const shouldUnlock =
+      (VIEW_MODE === 'open') ? true :
+      (VIEW_MODE === 'locked') ? false :
+      !card.classList.contains('locked'); // normal 모드에서는 HTML에 locked 있으면 잠김 유지
+
+    if(shouldUnlock){
       card.classList.remove('locked');
       card.removeAttribute('aria-disabled');
-      card.onclick = ()=>openStory(key);
       card.tabIndex = 0;
-    }else if(VIEW_MODE === 'locked'){
+      card.onclick = ()=>openStory(key);
+      card.onkeydown = (e)=>{
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          openStory(key);
+        }
+      };
+    }else{
       card.classList.add('locked');
       card.setAttribute('aria-disabled','true');
-      card.onclick = null;
-      card.removeAttribute('tabindex');
-    }else{
-      if(card.classList.contains('locked')){
-        card.setAttribute('aria-disabled','true');
-        card.onclick = null;
-        card.removeAttribute('tabindex');
-      }else{
-        card.removeAttribute('aria-disabled');
-        card.onclick = ()=>openStory(key);
-        card.tabIndex = 0;
-      }
+      card.tabIndex = -1;
+      card.onclick = ()=>shakeCard(card);
+      card.onkeydown = (e)=>{
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          shakeCard(card);
+        }
+      };
     }
   });
 }
