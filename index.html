@@ -977,6 +977,18 @@
       outline:2px solid var(--focus);
       outline-offset:2px;
     }
+.notice-wrap{
+  display:flex;
+  flex-direction:column;
+  gap:8px;              /* 두 문장 간격 */
+  align-items:center;   /* 가운데 정렬(원하면 left로 바꿔도 됨) */
+}
+
+.notice-sub{
+  margin:0;
+  font-size:12px;
+  opacity:.75;
+}
 
   </style>
 </head>
@@ -1029,7 +1041,11 @@
       </a>
     </nav>
 
-    <p class="notice">이 작품은 단일 탐색을 지원하지 않습니다. 선택지 구간으로만 이동할 수 있습니다.</p>
+    <div class="notice-wrap">
+  <p class="notice">이 작품은 단일 탐색을 지원하지 않습니다. 선택지 구간으로만 이동할 수 있습니다.</p>
+  
+</div>
+
   </div>
 
   <!-- 로딩 오버레이 -->
